@@ -1115,7 +1115,7 @@
                 return 'Signup is not set up yet. Run supabase-setup.sql in the Supabase SQL Editor, then try again.';
             }
             if (lower.includes('email rate limit') || lower.includes('over_email_send_rate_limit') || lower.includes('rate limit')) {
-                return 'Too many attempts. Wait a few minutes and try again.';
+                return 'Signup is misconfigured: turn off "Confirm email" under Authentication > Sign In / Providers > Email in your Supabase dashboard, then try again.';
             }
             if (lower.includes('already registered') || lower.includes('already been registered') || lower.includes('already exists')) {
                 return 'That username is already taken. Try another.';
