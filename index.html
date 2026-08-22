@@ -1,0 +1,1644 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Programming Handbook — Interactive Documentation</title>
+    
+    <!-- Supabase JavaScript Client Library -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        /* =========================================
+           ADVANCED DESIGN SYSTEM & TOKENS
+           ========================================= */
+        :root[data-theme="light"] {
+            --bg-color: #f8fafc;
+            --bg-secondary: #ffffff;
+            --bg-tertiary: #f1f5f9;
+            --text-main: #090d16;
+            --text-muted: #64748b;
+            --primary-color: #2563eb;
+            --primary-glow: rgba(37, 99, 235, 0.12);
+            --border-color: #e2e8f0;
+            --border-hover: #cbd5e1;
+            --card-bg: #ffffff;
+            --card-hover-bg: #fcfdff;
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.04);
+            --shadow-lg: 0 15px 25px -5px rgba(37, 99, 235, 0.08);
+            --grid-line: rgba(0, 0, 0, 0.05);
+        }
+
+        :root[data-theme="dark"] {
+            --bg-color: #000000; /* Pure OLED Black */
+            --bg-secondary: #030303;
+            --bg-tertiary: #07070a;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --primary-color: #3b82f6;
+            --primary-glow: rgba(59, 130, 246, 0.25);
+            --border-color: #121216;
+            --border-hover: #1f1f2b;
+            --card-bg: #050508;
+            --card-hover-bg: #0c0c12;
+            --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.9);
+            --shadow-lg: 0 20px 40px -10px rgba(0, 0, 0, 0.95);
+            --grid-line: rgba(59, 130, 246, 0.09);
+        }
+
+        /* =========================================
+           GLOBAL RESETS & UI SCALING
+           ========================================= */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        html {
+            scroll-behavior: smooth;
+            zoom: 1.12;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background-image: linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+                              linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+            background-size: 48px 48px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        a { text-decoration: none; color: inherit; }
+
+        /* =========================================
+           TOP APP BAR & AUTH BUTTONS
+           ========================================= */
+        .top-nav {
+            position: fixed; top: 0; left: 0; width: 100%; height: 64px;
+            background: var(--bg-secondary);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-color);
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 2rem; z-index: 100;
+        }
+
+        /* Structure the nav to perfectly center the search bar */
+        .nav-left { flex: 1; display: flex; align-items: center; justify-content: flex-start; gap: 0.75rem; }
+        .nav-center { flex: 1; display: flex; align-items: center; justify-content: center; }
+        .nav-right { flex: 1; display: flex; align-items: center; justify-content: flex-end; gap: 0.85rem; }
+        
+        .logo { 
+            font-weight: 700; font-size: 1.1rem; letter-spacing: -0.02em;
+            color: var(--text-main); display: flex; align-items: center; gap: 0.6rem;
+        }
+
+        .logo-badge {
+            width: 9px; height: 9px; background: var(--primary-color);
+            border-radius: 50%; box-shadow: 0 0 12px var(--primary-color);
+        }
+
+        .search-bar {
+            display: flex; align-items: center;
+            background: var(--bg-tertiary); border: 1px solid var(--border-color);
+            border-radius: 10px; padding: 0.5rem 1rem; width: 380px; max-width: 100%;
+            transition: all 0.2s ease;
+        }
+        
+        .search-bar:focus-within {
+            border-color: var(--primary-color);
+            background: var(--bg-secondary);
+            box-shadow: 0 0 0 3px var(--primary-glow);
+        }
+
+        .search-bar input {
+            border: none; background: transparent; outline: none;
+            margin-left: 0.6rem; color: var(--text-main); width: 100%; font-size: 0.9rem;
+        }
+
+        /* Cooler Buttons Layout & Base Styling */
+        .icon-btn, .auth-btn {
+            background: var(--bg-tertiary); 
+            border: 1px solid var(--border-color); 
+            color: var(--text-main); 
+            cursor: pointer; 
+            height: 40px; 
+            border-radius: 10px; 
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.875rem; 
+            font-weight: 600; 
+            padding: 0 1.1rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .icon-btn { width: 40px; padding: 0; }
+        
+        /* Secondary Button Hover (Log In) */
+        .icon-btn:hover, .auth-btn:hover { 
+            background: var(--bg-secondary); 
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Primary Button Styling (Sign Up) */
+        .auth-btn.primary {
+            background: linear-gradient(135deg, var(--primary-color), #4f46e5);
+            color: #ffffff;
+            border: none;
+            box-shadow: 0 4px 15px var(--primary-glow);
+            z-index: 1;
+        }
+        
+        .auth-btn.primary:hover { 
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 8px 25px var(--primary-glow);
+        }
+
+        /* Animated Shine Effect for Primary Button */
+        .auth-btn.primary::after {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 50%; height: 100%;
+            background: linear-gradient(to right, transparent, rgba(255,255,255,0.25), transparent);
+            transform: skewX(-20deg);
+            z-index: -1;
+            transition: left 0.6s ease;
+        }
+
+        .auth-btn.primary:hover::after {
+            left: 150%;
+        }
+
+        .user-badge {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            background: var(--bg-tertiary);
+            padding: 0.4rem 0.8rem;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            max-width: 160px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        /* =========================================
+           AUTH MODAL STYLES
+           ========================================= */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background-color: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            display: flex; /* Kept flex so internal alignment works during animation */
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            
+            /* Smooth state handling */
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .modal-overlay .modal-card, /* Update this selector to match your modal container's actual class/ID */
+        .modal-overlay > div { 
+            transform: translateY(-20px);
+            transition: transform 0.3s ease;
+        }
+        
+        .modal-overlay.active,
+        .modal-overlay.open {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-overlay.active .modal-card,
+        .modal-overlay.active > div,
+        .modal-overlay.open .modal-card,
+        .modal-overlay.open > div {
+            transform: translateY(0);
+        }
+
+        .modal-overlay.open { opacity: 1; pointer-events: auto; }
+        
+        .modal-card {
+            background: var(--bg-secondary); border: 1px solid var(--border-color);
+            border-radius: 16px; padding: 2.25rem; width: 100%; max-width: 400px;
+            box-shadow: var(--shadow-lg); display: flex; flex-direction: column; gap: 1.2rem; position: relative;
+        }
+        .modal-card h2 { font-size: 1.4rem; font-weight: 700; color: var(--text-main); }
+        .modal-card p { font-size: 0.85rem; color: var(--text-muted); }
+        
+        .form-group { display: flex; flex-direction: column; gap: 0.4rem; }
+        .form-group label { font-size: 0.78rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; }
+        .form-group input {
+            background: var(--bg-tertiary); border: 1px solid var(--border-color);
+            padding: 0.7rem 0.9rem; border-radius: 8px; color: var(--text-main); font-size: 0.9rem; outline: none;
+            transition: border-color 0.2s ease;
+        }
+        .form-group input:focus { border-color: var(--primary-color); box-shadow: 0 0 0 3px var(--primary-glow); }
+        
+        .modal-actions { display: flex; gap: 0.75rem; margin-top: 0.5rem; }
+        .modal-actions button {
+            flex: 1; padding: 0.75rem; border-radius: 8px; font-weight: 600; cursor: pointer;
+            border: 1px solid var(--border-color); font-size: 0.88rem;
+        }
+        .btn-submit { background: var(--primary-color); color: #fff; border-color: transparent !important; }
+        .btn-submit:hover { opacity: 0.9; }
+        .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; }
+        
+        .modal-close {
+            position: absolute; top: 1.25rem; right: 1.25rem; background: transparent;
+            border: none; color: var(--text-muted); cursor: pointer; font-size: 1.4rem; line-height: 1;
+        }
+        
+        .auth-notice {
+            font-size: 0.8rem; padding: 0.65rem 0.85rem; border-radius: 8px; display: none; line-height: 1.4;
+        }
+
+        .modal-link {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            cursor: pointer;
+            text-decoration: none;
+            margin-top: -0.6rem;
+            align-self: flex-start;
+        }
+        .modal-link:hover { text-decoration: underline; }
+
+        .btn-resend {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 0.7rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .btn-resend:hover { border-color: var(--primary-color); }
+        .btn-resend:disabled { opacity: 0.55; cursor: not-allowed; }
+
+        /* =========================================
+           SHOW / HIDE TOGGLE (email + password fields)
+           ========================================= */
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        .input-wrapper input {
+            width: 100%;
+            padding-right: 2.6rem !important;
+        }
+        .toggle-visibility-btn {
+            position: absolute;
+            right: 0.55rem;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.35rem;
+            border-radius: 6px;
+        }
+        .toggle-visibility-btn:hover { color: var(--text-main); background: var(--bg-tertiary); }
+        .toggle-visibility-btn svg { width: 17px; height: 17px; stroke-width: 2; }
+
+        /* =========================================
+           DANGER BUTTON (delete account) & CHECKBOX
+           ========================================= */
+        .auth-btn.danger {
+            color: #ef4444;
+            border-color: rgba(239, 68, 68, 0.35);
+        }
+        .auth-btn.danger:hover {
+            background: rgba(239, 68, 68, 0.08);
+            border-color: #ef4444;
+        }
+
+        .btn-submit.danger {
+            background: #ef4444;
+        }
+        .btn-submit.danger:hover { opacity: 0.9; }
+
+        .checkbox-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.6rem;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            cursor: pointer;
+            line-height: 1.4;
+        }
+        .checkbox-row input[type="checkbox"] {
+            margin-top: 0.15rem;
+            width: 16px;
+            height: 16px;
+            accent-color: #ef4444;
+            flex-shrink: 0;
+            cursor: pointer;
+        }
+
+        /* =========================================
+           SIDEBAR (LOCKED FIXED LAYOUT)
+           ========================================= */
+        .layout-wrapper { display: flex; min-height: calc(100vh - 64px); position: relative; z-index: 1; margin-top: 64px; }
+
+        .sidebar {
+            width: 280px; 
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border-color); 
+            padding: 1.5rem 1rem;
+            position: fixed; 
+            top: 64px; 
+            left: 0;
+            height: calc(100vh - 64px);
+            overflow-y: auto;
+            display: flex; 
+            flex-direction: column; 
+            gap: 0.5rem;
+            flex-shrink: 0;
+            z-index: 50;
+        }
+
+        .nav-section-label {
+            font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em;
+            color: var(--text-muted); font-weight: 700; padding: 0.6rem 0.6rem 0.3rem 0.6rem;
+        }
+
+        .sidebar-menu { 
+            display: flex; flex-direction: column; gap: 0.35rem; 
+        }
+
+        .nav-link {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0.75rem 1rem; color: var(--text-muted);
+            border-radius: 9px; font-size: 0.875rem; border: 1px solid transparent;
+            transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease; 
+            font-weight: 500;
+        }
+        
+        .nav-link:hover {
+            background: var(--bg-tertiary); color: var(--text-main);
+            border-color: var(--border-color);
+        }
+
+        .nav-link.active {
+            background: var(--primary-glow); color: var(--primary-color); 
+            border-color: rgba(59, 130, 246, 0.3); font-weight: 600;
+        }
+
+        /* =========================================
+           CONTENT AREA & GRIDS
+           ========================================= */
+        .content-area { 
+            flex: 1; 
+            margin-left: 280px;
+            padding: 3.5rem 4rem 4rem 4rem;
+            max-width: calc(1440px + 280px); 
+            min-width: 0;
+        }
+        
+        .hero-section { margin-bottom: 3rem; scroll-margin-top: 100px; }
+        
+        h1 { 
+            font-size: 2.8rem; margin-bottom: 0.6rem; font-weight: 800; 
+            letter-spacing: -0.03em; color: var(--text-main);
+        }
+        
+        .hero-subtitle { 
+            font-size: 1.05rem; color: var(--text-muted); 
+            max-width: 700px; font-weight: 400;
+        }
+
+        .category-container { scroll-margin-top: 90px; }
+
+        .category-title {
+            font-size: 1.2rem; font-weight: 700; margin: 3rem 0 1.25rem 0;
+            display: flex; align-items: center; gap: 0.75rem; color: var(--text-main);
+            border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem;
+        }
+
+        .card-grid { 
+            display: grid; 
+            grid-template-columns: repeat(3, 1fr); 
+            gap: 1.25rem; 
+        }
+        
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 14px; padding: 1.5rem; 
+            transition: all 0.25s ease;
+            box-shadow: var(--shadow-sm); display: flex; flex-direction: column;
+            position: relative; overflow: hidden; cursor: pointer;
+        }
+
+        .card:hover { 
+            transform: translateY(-4px); 
+            box-shadow: var(--shadow-lg); 
+            border-color: var(--border-hover);
+            background: var(--card-hover-bg);
+        }
+
+        .card-header-row { 
+            display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; 
+        }
+
+        .card-meta-right {
+            display: flex; align-items: center; gap: 0.5rem;
+        }
+
+        .card-icon {
+            width: 42px; height: 42px;
+            display: flex; align-items: center; justify-content: center; border-radius: 10px;
+            background: var(--bg-tertiary); border: 1px solid var(--border-color);
+            color: var(--primary-color);
+        }
+
+        .card-icon svg { width: 20px; height: 20px; stroke-width: 2; }
+
+        .card-badge {
+            font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;
+            padding: 0.2rem 0.6rem; border-radius: 14px; background: var(--bg-tertiary); color: var(--text-muted);
+            border: 1px solid var(--border-color);
+        }
+
+        /* =========================================
+           EXPANDING DIFFICULTY PILL SYSTEM
+           ========================================= */
+        .difficulty-pill {
+            display: flex;
+            align-items: center;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            height: 28px;
+            width: 28px;
+            overflow: hidden;
+            transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.2s;
+            cursor: pointer;
+            white-space: nowrap;
+            flex-direction: row-reverse;
+        }
+
+        .difficulty-pill:hover, .card:hover .difficulty-pill {
+            width: 145px;
+            background: var(--bg-secondary);
+            border-color: var(--border-hover);
+        }
+
+        .diff-dot {
+            min-width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            background: var(--diff-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            box-shadow: 0 0 8px var(--diff-color);
+            margin: 1px;
+        }
+
+        .diff-text {
+            padding-left: 10px;
+            padding-right: 4px;
+            font-size: 0.65rem;
+            font-weight: 700;
+            color: var(--text-main);
+            opacity: 0;
+            transition: opacity 0.2s ease 0.05s;
+            letter-spacing: -0.01em;
+        }
+
+        .difficulty-pill:hover .diff-text, .card:hover .difficulty-pill .diff-text {
+            opacity: 1;
+        }
+
+        .card h3 { margin-bottom: 0.4rem; color: var(--text-main); font-size: 1.05rem; font-weight: 700; }
+        .card p { margin-bottom: 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5; }
+
+        @media (max-width: 1100px) {
+            .card-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 768px) {
+            .sidebar { display: none; }
+            .content-area { margin-left: 0; padding: 2rem; }
+            .card-grid { grid-template-columns: 1fr; }
+            .search-bar { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- TOP APP BAR -->
+    <header class="top-nav">
+        <div class="nav-left">
+            <a href="index.html" class="logo">
+                <div class="logo-badge"></div>
+                Programming Handbook
+            </a>
+        </div>
+        
+        <div class="nav-center">
+            <div class="search-bar">
+                <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" fill="none" opacity="0.6"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35" stroke-width="2" stroke-linecap="round"/></svg>
+                <input type="text" id="live-search" placeholder="Search languages, engines, AI, cybersecurity...">
+            </div>
+        </div>
+
+        <div class="nav-right" id="auth-nav-controls">
+            <!-- Dynamically managed via JS based on login session state -->
+            <!-- THEME TOGGLE REMOVED FROM DEFAULT HTML -->
+            <button id="open-login" class="auth-btn">Log In</button>
+            <button id="open-signup" class="auth-btn primary">Sign Up</button>
+        </div>
+    </header>
+
+    <!-- AUTH MODAL DIALOG -->
+    <div class="modal-overlay" id="auth-modal">
+        <div class="modal-card">
+            <button class="modal-close" id="close-modal">&times;</button>
+            <h2 id="modal-title">Log In</h2>
+            <p id="modal-desc">Sign in to unlock user features and theme customisation.</p>
+            
+            <div class="auth-notice" id="auth-notice"></div>
+
+            <div class="form-group">
+                <label>Email Address</label>
+                <div class="input-wrapper">
+                    <input type="password" id="auth-email" placeholder="you@example.com" autocomplete="username">
+                    <button type="button" class="toggle-visibility-btn" id="toggle-auth-email-visibility" aria-label="Show email"></button>
+                </div>
+            </div>
+            <div class="form-group" id="password-group">
+                <label>Password</label>
+                <div class="input-wrapper">
+                    <input type="password" id="auth-password" placeholder="••••••••" autocomplete="current-password">
+                    <button type="button" class="toggle-visibility-btn" id="toggle-auth-password-visibility" aria-label="Show password"></button>
+                </div>
+            </div>
+
+            <a href="#" id="forgot-password-link" class="modal-link">Forgot your password?</a>
+            <a href="#" id="back-to-login-link" class="modal-link" style="display:none;">&larr; Back to log in</a>
+
+            <div class="modal-actions">
+                <button id="auth-submit-btn" class="btn-submit">Continue</button>
+            </div>
+
+            <button id="resend-btn" class="btn-resend" style="display:none;">Resend verification email</button>
+        </div>
+    </div>
+
+    <!-- DELETE ACCOUNT MODAL -->
+    <div class="modal-overlay" id="delete-modal">
+        <div class="modal-card">
+            <button class="modal-close" id="close-delete-modal">&times;</button>
+            <h2 style="color:#ef4444;">Delete Your Account</h2>
+            <p>This action is <strong>permanent</strong>. Your account and all associated data will be deleted immediately and cannot be recovered. You'll need to sign up again from scratch if you ever want to come back.</p>
+
+            <div class="auth-notice" id="delete-notice"></div>
+
+            <div class="form-group">
+                <label>Confirm Your Email</label>
+                <div class="input-wrapper">
+                    <input type="password" id="delete-email-confirm" placeholder="you@example.com" autocomplete="off">
+                    <button type="button" class="toggle-visibility-btn" id="toggle-delete-email-visibility" aria-label="Show email"></button>
+                </div>
+            </div>
+
+            <label class="checkbox-row">
+                <input type="checkbox" id="delete-confirm-checkbox">
+                <span>I understand this action is permanent and my account and all of my data will be deleted forever.</span>
+            </label>
+
+            <div class="modal-actions" style="margin-top: 0.75rem;">
+                <button id="cancel-delete-btn" class="auth-btn" style="flex:1;">Cancel</button>
+                <button id="confirm-delete-btn" class="btn-submit danger" style="flex:1;" disabled>Delete Account</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN APP LAYOUT -->
+    <div class="layout-wrapper">
+        
+        <!-- SIDEBAR -->
+        <aside class="sidebar" id="sidebar">
+            <div class="nav-section-label">Quick Jump Navigation</div>
+            <div class="sidebar-menu">
+                <a href="#overview" class="nav-link active"><span>Overview</span></a>
+                <a href="#web-dev" class="nav-link"><span>Web Technologies</span></a>
+                <a href="#systems" class="nav-link"><span>Systems & Compiled</span></a>
+                <a href="#general" class="nav-link"><span>General Purpose</span></a>
+                <a href="#scripting" class="nav-link"><span>Scripting & Utilities</span></a>
+                <a href="#gamedev" class="nav-link"><span>Game Engines & 3D</span></a>
+                <a href="#core-tracks" class="nav-link"><span>Advanced Tech Tracks</span></a>
+            </div>
+        </aside>
+
+        <!-- CONTENT AREA -->
+        <main class="content-area">
+            <div class="hero-section" id="overview">
+                <h1>Interactive Documentation.</h1>
+                <p class="hero-subtitle">Select a curriculum module below to dive deep into syntax manuals, architecture references, game development, and machine learning labs.</p>
+            </div>
+
+            <!-- WEB TECHNOLOGIES -->
+            <div id="web-dev" class="category-container">
+                <h2 class="category-title">🌐 Web Technologies</h2>
+                <div class="card-grid">
+                    <a href="html_intro.html" class="card" data-title="html markup semantic">
+                        <div class="card-header-row">
+                            <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/></svg></div>
+                            <div class="card-meta-right">
+                                <div class="difficulty-pill" style="--diff-color: #22c55e;"><span class="diff-dot"></span><span class="diff-text">Difficulty: Low</span></div>
+                                <div class="card-badge">Markup</div>
+                            </div>
+                        </div>
+                        <h3>HTML</h3>
+                        <p>Structure the web with semantic elements, forms, accessibility, and modern document trees.</p>
+                    </a>
+                    <a href="css_intro.html" class="card" data-title="css styling layout flexbox grid">
+                        <div class="card-header-row">
+                            <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
+                            <div class="card-meta-right">
+                                <div class="difficulty-pill" style="--diff-color: #22c55e;"><span class="diff-dot"></span><span class="diff-text">Difficulty: Low</span></div>
+                                <div class="card-badge">Styles</div>
+                            </div>
+                        </div>
+                        <h3>CSS</h3>
+                        <p>Design responsive layouts using Flexbox, Grid, animations, and custom CSS variables.</p>
+                    </a>
+                    <a href="js_intro.html" class="card" data-title="javascript js dynamic dom es6">
+                        <div class="card-header-row">
+                            <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
+                            <div class="card-meta-right">
+                                <div class="difficulty-pill" style="--diff-color: #eab308;"><span class="diff-dot"></span><span class="diff-text">Difficulty: Mid</span></div>
+                                <div class="card-badge">Language</div>
+                            </div>
+                        </div>
+                        <h3>JavaScript</h3>
+                        <p>Master asynchronous programming, closures, ES6+ features, and browser DOM manipulation.</p>
+                    </a>
+                    <a href="ts_intro.html" class="card" data-title="typescript ts types interfaces">
+                        <div class="card-header-row">
+                            <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2l10 6.5v7L12 22 2 15.5v-7L12 2z"/></svg></div>
+                            <div class="card-meta-right">
+                                <div class="difficulty-pill" style="--diff-color: #f97316;"><span class="diff-dot"></span><span class="diff-text">Difficulty: High</span></div>
+                                <div class="card-badge">Typed JS</div>
+                            </div>
+                        </div>
+                        <h3>TypeScript</h3>
+                        <p>Write robust, scalable code with static typing, interfaces, generics, and strict compilation.</p>
+                    </a>
+                    <a href="php_intro.html" class="card" data-title="php backend server web">
+                        <div class="card-header-row">
+                            <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a3 3 0 0 0 0-6Z"/></svg></div>
+                            <div class="card-meta-right">
+                                <div class="difficulty-pill" style="--diff-color: #eab308;"><span class="diff-dot"></span><span class="diff-text">Difficulty: Mid</span></div>
+                                <div class="card-badge">Backend</div>
+                            </div>
+                        </div>
+                        <h3>PHP</h3>
+                        <p>Build dynamic server-side web apps, handle inputs, and connect with relational databases.</p>
+                    </a>
+                    <a href="objc_intro.html" class="card" data-title="objective-c objc apple mac ios runtime">
+                        <div class="card-header-row">
+                            <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 20.94c1.5 0 2.75 1.06 4 1.06 3 0 6-8 6-12.22A4.91 4.91 0 0 0 17 5c-2.22 0-4 1.44-5 1.44S9.22 5 7 5a4.91 4.91 0 0 0-5 4.78C2 14 5 22 8 22c1.25 0 2.5-1.06 4-1.06z"/><path d="M12 5.5a2.5 2.5 0 0 0 2.5-2.5"/></svg></div>
+                            <div class="card-meta-right">
+                                <div class="difficulty-pill" style="--diff-color: #f97316;"><span class="diff-dot"></span><span class="diff-text">Difficulty: High</span></div>
+                                <div class="card-badge">Apple Systems</div>
+                            </div>
+                        </div>
+                        <h3>Objective-C</h3>
+                        <p>Build legacy macOS and iOS applications utilizing dynamic runtime messaging, Smalltalk-style syntax, and C foundations.</p>
+                    </a>
+                </div>
+            </div>
+
+            <!-- SYSTEMS & COMPILED -->
+            <div id="systems" class="category-container">
+                <h2 class="category-title">⚙️ Systems & Compiled Languages</h2>
+                <div class="card-grid">
+                    <a href="cpp_intro.html" class="card" data-title="c++ cpp pointers memory">
+                        <div class="card-header-row">
+                            <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m4.5 16.5 7.5-7.5 7.5 7.5"/><path d="m4.5 11.5 7.5-7.5 7.5 7.5"/></svg></div>
+                            <div class="card-meta-right">
+                                <div class="difficulty-pill" style="--diff-color: #ec4899;"><span class="diff-dot"></span><span class="diff-text">Difficulty: Master</span></div>
+                                <div class="card-badge">Performance</div>
+                            </div>
+                        </div>
+                        <h3>C++</h3>
+                        <p>Dive into manual memory management, pointers, object-oriented principles, and templates.</p>
+                    </a>
+                    <a href="c_intro.html" class="card" data-title="c programming low level systems">
+                        <div class="card-header-row">
+                            <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></div>
+                            <div class="card-meta-right">
+                                <div class="difficulty-pill" style="--diff-color: #a855f7;"><span class="diff-dot"></span><span class="diff-text">Difficulty: Grandmaster</span></div>
+                                <div class="card-badge">Low-Level</div>
+                            </div>
+                        </div>
+                        <h3>C</h3>
+                        <p>Understand computer architecture, pointers, memory allocation, and procedural logic.</p>
+                    </a>
+                    <a href="rust_intro.html" class="card" data-title="rust memory safety concurrency">
+                        <div class="card-header-row">
+                            <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+                            <div class="card-meta-right">
+                                <div class="difficulty-pill" style="--diff-color: #ec4899;"><span class="diff-dot"></span><span class="diff-text">Difficulty: Master</span></div>
+                                <div class="card-badge">Safe Systems</div>
+                            </div>
+                        </div>
+                        <h3>Rust</h3>
+                        <p>Build lightning-fast, crash-proof software with compile-time memory safety.</p>
+                    </a>
+                    <a href="go_intro.html" class="card" data-title="go golang concurrency microservices">
+                        <div class="card-header-row">
+                            <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
+                            <div class="card-meta-right">
+                                <div class="difficulty-pill" style="--diff-color: #f97316;"><span class="diff-dot"></span><span class="diff-text">Difficulty: High</span></div>
+                                <div class="card-badge">Cloud Native</div>
+                            </div>
+                        </div>
+                        <h3>Go</h3>
+                        <p>Construct high-performance microservices with built-in goroutines and channels.</p>
+                    </a>
+                    <a href="zig_intro.html" class="card" data-title="zig programming systems language">
+                        <div class="card-header-row">
+                            <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg></div>
+                            <div class="card-meta-right">
+                                <div class="difficulty-pill" style="--diff-color: #a855f7;"><span class="diff-dot"></span><span class="diff-text">Difficulty: Grandmaster</span></div>
+                                <div class="card-badge">Modern Low-Level</div>
+                            </div>
+                        </div>
+                        <h3>Zig</h3>
+                        <p>Explore robust systems programming as a modern alternative to C with manual memory control.</p>
+                    </a>
+                    <a href="assembly_intro.html" class="card" data-title="assembly hardware machine code instructions">
+                        <div class="card-header-row">
+                            <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"/><rect x="9" y="9" width="6" height="6"/></svg></div>
+                            <div class="card-meta-right">
+                                <div class="difficulty-pill" style="--diff-color: #a855f7;"><span class="diff-dot"></span><span class="diff-text">Difficulty: Grandmaster</span></div>
+                                <div class="card-badge">Hardware Code</div>
+                            </div>
+                        </div>
+                        <h3>Assembly</h3>
+                        <p>Write low-level machine instructions and understand direct CPU processor registers.</p>
+                    </a>
+                </div>
+            </div>
+
+            <!-- GENERAL PURPOSE & ENTERPRISE -->
+            <div id="general" class="category-container">
+                <h2 class="category-title">💡 General Purpose & Enterprise</h2>
+                <div class="card-grid">
+                    <a href="python_intro.html" class="card" data-title="python ai data science automation">
+                        <div class="card-header-row">
+                            <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+                            <div class="card-meta-right">
+                                <div class="difficulty-pill" style="--diff-color: #22c55e;"><span class="diff-dot"></span><span class="diff-text">Difficulty: Low</span></div>
+                                <div class="card-badge">Versatile</div>
+                            </div>
+                        </div>
+                        <h3>Python</h3>
+                        <p>Leverage clean syntax for data science, automation scripts, and application backends.</p>
+                    </a>
+                    <a href="java_intro.html" class="card" data-title="java enterprise oop jvm">
+                        <div class="card-header-row">
+                            <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 8h1a4 4 0 0 1 0 8h-1"></path><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path><line x1="6" y1="1" x2="6" y2="4"></line><line x1="10" y1="1" x2="10" y2="4"></line><line x1="14" y1="1" x2="14" y2="4"></line></svg></div>
+                            <div class="card-meta-right">
+                                <div class="difficulty-pill" style="--diff-color: #f97316;"><span class="diff-dot"></span><span class="diff-text">Difficulty: High</span></div>
+                                <div class="card-badge">Enterprise</div>
+                            </div>
+                        </div>
+                        <h3>Java</h3>
+                        <p>Develop secure, cross-platform enterprise applications on the Java Virtual Machine.</p>
+                    </a>
+                    <a href="csharp_intro.html" class="card" data-title="c# dotnet unity game dev">
+                        <div class="card-header-row">
+                            <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg></div>
+                            <div class="card-meta-right">
+                                <div class="difficulty-pill" style="--diff-color: #f97316;"><span class="diff-dot"></span><span class="diff-text">Difficulty: High</span></div>
+                                <div class="card-badge">.NET</div>
+                            </div>
+                        </div>
+                        <h3>C#</h3>
+                        <p>Build desktop apps, enterprise web services, and robust backend architectures.</p>
+                    </a>
+                    <a href="kotlin_intro.html" class="card" data-title="kotlin android mobile modern">
+                        <div class="card-header-row">
+                            <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg></div>
+                            <div class="card-meta-right">
+                                <div class="difficulty-pill" style="--diff-color: #eab308;"><span class="diff-dot"></span><span class="diff-text">Difficulty: Mid</span></div>
+                                <div class="card-badge">Android</div>
+                            </div>
+                        </div>
+                        <h3>Kotlin</h3>
+                        <p>Create modern, concise Android applications fully interoperable with Java runtime.</p>
+                    </a>
+                    <a href="swift_intro.html" class="card" data-title="swift ios mac apple mobile">
+                        <div class="card-header-row">
+                            <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 20.94c1.5 0 2.75 1.06 4 1.06 3 0 6-8 6-12.22A4.91 4.91 0 0 0 17 5c-2.22 0-4 1.44-5 1.44S9.22 5 7 5a4.91 4.91 0 0 0-5 4.78C2 14 5 22 8 22c1.25 0 2.5-1.06 4-1.06z"/><path d="M12 5.5a2.5 2.5 0 0 0 2.5-2.5"/></svg></div>
+                            <div class="card-meta-right">
+                                <div class="difficulty-pill" style="--diff-color: #eab308;"><span class="diff-dot"></span><span class="diff-text">Difficulty: Mid</span></div>
+                                <div class="card-badge">iOS / Mac</div>
+                            </div>
+                        </div>
+                        <h3>Swift</h3>
+                        <p>Build elegant apps for iPhones, iPads, and Macs using powerful modern paradigms.</p>
+                    </a>
+                    <a href="scala_intro.html" class="card" data-title="scala functional programming jvm">
+                        <div class="card-header-row">
+                            <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg></div>
+                            <div class="card-meta-right">
+                                <div class="difficulty-pill" style="--diff-color: #ef4444;"><span class="diff-dot"></span><span class="diff-text">Difficulty: Expert</span></div>
+                                <div class="card-badge">Functional JVM</div>
+                            </div>
+                        </div>
+                        <h3>Scala</h3>
+                        <p>Combine object-oriented and functional programming models smoothly on top of the JVM.</p>
+                    </a>
+                </div>
+            </div>
+
+            <!-- SCRIPTING, DATA & UTILITIES -->
+            <div id="scripting" class="category-container">
+                <h2 class="category-title">📊 Scripting, Data & Utilities</h2>
+                <div class="card-grid">
+                    <a href="sql_intro.html" class="card" data-title="sql database queries postgresql mysql">
+                        <div class="card-header-row">
+                            <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg></div>
+                            <div class="card-meta-right">
+                                <div class="difficulty-pill" style="--diff-color: #eab308;"><span class="diff-dot"></span><span class="diff-text">Difficulty: Mid</span></div>
+                                <div class="card-badge">Databases</div>
+                            </div>
+                        </div>
+                        <h3>SQL</h3>
+                        <p>Design relational databases, write complex joins, and manage queries efficiently.</p>
+                    </a>
+                    <a href="ruby_intro.html" class="card" data-title="ruby rails web developer friendly">
+                        <div class="card-header-row">
+                            <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="6 3 18 3 22 9 12 21 2 9 6 3"/></svg></div>
+                            <div class="card-meta-right">
+                                <div class="difficulty-pill" style="--diff-color: #22c55e;"><span class="diff-dot"></span><span class="diff-text">Difficulty: Low</span></div>
+                                <div class="card-badge">Expressive</div>
+                            </div>
+                        </div>
+                        <h3>Ruby</h3>
+                        <p>Enjoy developer-friendly syntax optimized for productivity and rapid prototyping.</p>
+                    </a>
+                    <a href="dart_intro.html" class="card" data-title="dart flutter cross platform mobile">
+                        <div class="card-header-row">
+                            <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/></svg></div>
+                            <div class="card-meta-right">
+                                <div class="difficulty-pill" style="--diff-color: #eab308;"><span class="diff-dot"></span><span class="diff-text">Difficulty: Mid</span></div>
+                                <div class="card-badge">Cross-Platform</div>
+                            </div>
+                        </div>
+                        <h3>Dart</h3>
+                        <p>Build multi-platform applications for mobile and web with Flutter.</p>
+                    </a>
+                    <a href="bash_intro.html" class="card" data-title="bash shell scripting linux terminal">
+                        <div class="card-header-row">
+                            <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg></div>
+                            <div class="card-meta-right">
+                                <div class="difficulty-pill" style="--diff-color: #22c55e;"><span class="diff-dot"></span><span class="diff-text">Difficulty: Low</span></div>
+                                <div class="card-badge">Terminal</div>
+                            </div>
+                        </div>
+                        <h3>Bash</h3>
+                        <p>Automate developer workflows, manage servers, and write powerful Linux shell scripts.</p>
+                    </a>
+                    <a href="lua_intro.html" class="card" data-title="lua scripting lightweight embedding">
+                        <div class="card-header-row">
+                            <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg></div>
+                            <div class="card-meta-right">
+                                <div class="difficulty-pill" style="--diff-color: #22c55e;"><span class="diff-dot"></span><span class="diff-text">Difficulty: Low</span></div>
+                                <div class="card-badge">Embeddable</div>
+                            </div>
+                        </div>
+                        <h3>Lua</h3>
+                        <p>Integrate ultra-lightweight scripting into game engines and hardware devices.</p>
+                    </a>
+                    <a href="r_intro.html" class="card" data-title="r statistics data analysis visualization">
+                        <div class="card-header-row">
+                            <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div>
+                            <div class="card-meta-right">
+                                <div class="difficulty-pill" style="--diff-color: #eab308;"><span class="diff-dot"></span><span class="diff-text">Difficulty: Mid</span></div>
+                                <div class="card-badge">Statistics</div>
+                            </div>
+                        </div>
+                        <h3>R</h3>
+                        <p>Perform advanced statistical modeling, data cleaning, and generate visual plots.</p>
+                    </a>
+                </div>
+            </div>
+
+            <!-- GAME ENGINES & 3D ART -->
+            <div id="gamedev" class="category-container">
+                <h2 class="category-title">🎮 Game Engines & 3D Art</h2>
+                <div class="card-grid">
+                    <a href="unity_intro.html" class="card" data-title="unity game engine c# scripting gamedev">
+                        <div class="card-header-row">
+                            <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 12h4m-2-2v4"/></svg></div>
+                            <div class="card-meta-right">
+                                <div class="difficulty-pill" style="--diff-color: #f97316;"><span class="diff-dot"></span><span class="diff-text">Difficulty: High</span></div>
+                                <div class="card-badge">Engine</div>
+                            </div>
+                        </div>
+                        <h3>Unity & C#</h3>
+                        <p>Develop 2D and 3D games using the Unity game engine paired with powerful C# scripting scripts.</p>
+                    </a>
+                    <a href="godot_intro.html" class="card" data-title="godot game engine gdscript c# 2d 3d">
+                        <div class="card-header-row">
+                            <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="9"/><path d="M9 10h.01M15 10h.01M9.5 15a3.5 3.5 0 0 0 5 0"/></svg></div>
+                            <div class="card-meta-right">
+                                <div class="difficulty-pill" style="--diff-color: #eab308;"><span class="diff-dot"></span><span class="diff-text">Difficulty: Mid</span></div>
+                                <div class="card-badge">Indie Engine</div>
+                            </div>
+                        </div>
+                        <h3>Godot Engine</h3>
+                        <p>Master node-based scene architecture, GDScript, and C# integrations for fast game creation.</p>
+                    </a>
+                    <a href="blender_intro.html" class="card" data-title="blender 3d modeling animation rigging sculpting">
+                        <div class="card-header-row">
+                            <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg></div>
+                            <div class="card-meta-right">
+                                <div class="difficulty-pill" style="--diff-color: #f97316;"><span class="diff-dot"></span><span class="diff-text">Difficulty: High</span></div>
+                                <div class="card-badge">3D Suite</div>
+                            </div>
+                        </div>
+                        <h3>Blender 3D</h3>
+                        <p>Learn 3D modeling, asset texturing, rigging, animation, and rendering pipelines for games.</p>
+                    </a>
+                </div>
+            </div>
+
+            <!-- ADVANCED TECH TRACKS & ENGINEERING -->
+            <div id="core-tracks" class="category-container">
+                <h2 class="category-title">🔥 Advanced Tech Tracks & Engineering</h2>
+                <div class="card-grid">
+                    <a href="ai_intro.html" class="card" data-title="artificial intelligence machine learning ai model neural networks">
+                        <div class="card-header-row">
+                            <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2a10 10 0 0 1 7.54 16.6l-3.54-3.54a4 4 0 0 0-5.66 0l-3.54 3.54A10 10 0 0 1 12 2Z"/></svg></div>
+                            <div class="card-meta-right">
+                                <div class="difficulty-pill" style="--diff-color: #ef4444;"><span class="diff-dot"></span><span class="diff-text">Difficulty: Expert</span></div>
+                                <div class="card-badge">Hot Topic</div>
+                            </div>
+                        </div>
+                        <h3>Build an AI Model</h3>
+                        <p>Train neural networks, work with datasets, fine-tune LLMs, and master core machine learning pipelines.</p>
+                    </a>
+                    <a href="cyber_intro.html" class="card" data-title="cybersecurity hacking defense encryption security">
+                        <div class="card-header-row">
+                            <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+                            <div class="card-meta-right">
+                                <div class="difficulty-pill" style="--diff-color: #ef4444;"><span class="diff-dot"></span><span class="diff-text">Difficulty: Expert</span></div>
+                                <div class="card-badge">Security</div>
+                            </div>
+                        </div>
+                        <h3>Cybersecurity</h3>
+                        <p>Learn ethical hacking, penetration testing, cryptography protocols, and vulnerability analysis.</p>
+                    </a>
+                    <a href="cloud_intro.html" class="card" data-title="cloud computing aws docker kubernetes devops">
+                        <div class="card-header-row">
+                            <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a3 3 0 0 0 0-6Z"/></svg></div>
+                            <div class="card-meta-right">
+                                <div class="difficulty-pill" style="--diff-color: #f97316;"><span class="diff-dot"></span><span class="diff-text">Difficulty: High</span></div>
+                                <div class="card-badge">Infrastructure</div>
+                            </div>
+                        </div>
+                        <h3>Cloud Computing</h3>
+                        <p>Deploy applications with Docker, Kubernetes, serverless architectures, and major cloud platforms.</p>
+                    </a>
+                    <a href="cs_intro.html" class="card" data-title="computer science algorithms data structures theory">
+                        <div class="card-header-row">
+                            <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg></div>
+                            <div class="card-meta-right">
+                                <div class="difficulty-pill" style="--diff-color: #f97316;"><span class="diff-dot"></span><span class="diff-text">Difficulty: High</span></div>
+                                <div class="card-badge">Fundamentals</div>
+                            </div>
+                        </div>
+                        <h3>Computer Science</h3>
+                        <p>Master algorithms, data structures, complexity analysis, and underlying computational theory.</p>
+                    </a>
+                    <a href="git_intro.html" class="card" data-title="git version control github workflow collaboration">
+                        <div class="card-header-row">
+                            <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><path d="M6 21V9a9 9 0 0 0 9 9"/></svg></div>
+                            <div class="card-meta-right">
+                                <div class="difficulty-pill" style="--diff-color: #22c55e;"><span class="diff-dot"></span><span class="diff-text">Difficulty: Low</span></div>
+                                <div class="card-badge">Workflow</div>
+                            </div>
+                        </div>
+                        <h3>Git & Version Control</h3>
+                        <p>Master branching strategies, conflict resolution, rebase workflows, and collaborative codebase management.</p>
+                    </a>
+                    <a href="ui_intro.html" class="card" data-title="ui ux designfigra frontend user experience">
+                        <div class="card-header-row">
+                            <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/></svg></div>
+                            <div class="card-meta-right">
+                                <div class="difficulty-pill" style="--diff-color: #eab308;"><span class="diff-dot"></span><span class="diff-text">Difficulty: Mid</span></div>
+                                <div class="card-badge">Design Systems</div>
+                            </div>
+                        </div>
+                        <h3>UI/UX Engineering</h3>
+                        <p>Build accessible, high-converting digital user experiences, design systems, and frontend interfaces.</p>
+                    </a>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        /* =========================================
+           1. SUPABASE CONFIGURATION & AUTH SYSTEM
+           ========================================= */
+        const SUPABASE_URL = 'https://uxhkeswhlkktycbjitnq.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV4aGtlc3dobGtrdHljYmppdG5xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODczMTQ1MjAsImV4cCI6MjEwMjg5MDUyMH0.z5BA_7NFc1PZ5W-L55PFEzahm56J5ar1jCYeMacOnyU';
+        
+        let supabaseClient = null;
+        if (SUPABASE_URL !== 'YOUR_SUPABASE_URL' && SUPABASE_ANON_KEY !== 'YOUR_SUPABASE_ANON_KEY') {
+            supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        }
+
+        const root = document.documentElement;
+        const authNavControls = document.getElementById('auth-nav-controls');
+        const authModal = document.getElementById('auth-modal');
+        const closeModalBtn = document.getElementById('close-modal');
+        const modalTitle = document.getElementById('modal-title');
+        const modalDesc = document.getElementById('modal-desc');
+        const authEmailInput = document.getElementById('auth-email');
+        const authPasswordInput = document.getElementById('auth-password');
+        const authSubmitBtn = document.getElementById('auth-submit-btn');
+        const authNotice = document.getElementById('auth-notice');
+        const passwordGroup = document.getElementById('password-group');
+        const forgotPasswordLink = document.getElementById('forgot-password-link');
+        const backToLoginLink = document.getElementById('back-to-login-link');
+        const resendBtn = document.getElementById('resend-btn');
+
+        let authMode = 'login'; // 'login' | 'signup' | 'forgot'
+
+        // Where Supabase should send people after they click the email link.
+        // These are YOUR pages, not the default Supabase confirmation URL.
+        const REDIRECT_EMAIL_VERIFICATION = 'https://phantomicgit.github.io/code/emailverification.html';
+        const REDIRECT_RESET_PASSWORD = 'https://phantomicgit.github.io/code/resetpassword.html';
+
+        // Minimum wait (seconds) before the same email can request another
+        // verification/reset email. Prevents spam-clicking the button.
+        const RESEND_COOLDOWN_SECONDS = 60;
+        let cooldownInterval = null;
+
+        const moonIcon = `<svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" fill="none"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+        const sunIcon = `<svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" fill="none"><circle cx="12" cy="12" r="4" stroke-width="2"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" stroke-width="2" stroke-linecap="round"/></svg>`;
+
+        const eyeIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
+        const eyeOffIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a20.3 20.3 0 0 1 5.06-6.06M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a20.3 20.3 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`;
+
+        // Wires up a show/hide eye button next to a password-masked input.
+        // Field starts masked (type="password") and reveals as type="text"
+        // when toggled. Works the same for the "hidden by default" email
+        // fields as it does for real password fields.
+        function setupVisibilityToggle(buttonId, inputId) {
+            const btn = document.getElementById(buttonId);
+            const input = document.getElementById(inputId);
+            if (!btn || !input) return;
+            let visible = false;
+            btn.innerHTML = eyeIcon;
+            btn.setAttribute('aria-label', 'Show');
+            btn.addEventListener('click', () => {
+                visible = !visible;
+                input.type = visible ? 'text' : 'password';
+                btn.innerHTML = visible ? eyeOffIcon : eyeIcon;
+                btn.setAttribute('aria-label', visible ? 'Hide' : 'Show');
+            });
+        }
+
+        // Default non-signed-up users to Light mode
+        root.setAttribute('data-theme', 'light');
+
+        async function checkUserSession() {
+            if (!supabaseClient) {
+                renderLoggedOutUI();
+                return;
+            }
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            updateUIForSession(session);
+        }
+
+        if (supabaseClient) {
+            checkUserSession();
+            supabaseClient.auth.onAuthStateChange((event, session) => {
+                updateUIForSession(session);
+            });
+        } else {
+            renderLoggedOutUI();
+        }
+
+        function updateUIForSession(session) {
+            if (session && session.user) {
+                // USER SIGNED IN
+                const userEmail = session.user.email;
+                const savedTheme = localStorage.getItem(`theme_${session.user.id}`) || 'dark';
+                root.setAttribute('data-theme', savedTheme);
+
+                authNavControls.innerHTML = `
+                    <div class="user-badge" title="${userEmail}">${userEmail}</div>
+                    <button id="delete-account-btn" class="auth-btn danger">Delete Account</button>
+                    <button id="sign-out-btn" class="auth-btn">Log Out</button>
+                    <button id="theme-toggle" class="icon-btn" aria-label="Toggle Theme">${savedTheme === 'light' ? moonIcon : sunIcon}</button>
+                `;
+
+                document.getElementById('sign-out-btn').addEventListener('click', async () => {
+                    if (supabaseClient) await supabaseClient.auth.signOut();
+                    root.setAttribute('data-theme', 'light');
+                    window.location.reload();
+                });
+
+                document.getElementById('theme-toggle').addEventListener('click', () => toggleThemeAuthenticated(session.user.id));
+                document.getElementById('delete-account-btn').addEventListener('click', () => openDeleteModal(userEmail));
+            } else {
+                renderLoggedOutUI();
+            }
+        }
+
+        function renderLoggedOutUI() {
+            root.setAttribute('data-theme', 'light');
+            
+            /* Theme Toggle removed from here as requested */
+            authNavControls.innerHTML = `
+                <button id="open-login" class="auth-btn">Log In</button>
+                <button id="open-signup" class="auth-btn primary">Sign Up</button>
+            `;
+
+            document.getElementById('open-login').addEventListener('click', () => openModal('login'));
+            document.getElementById('open-signup').addEventListener('click', () => openModal('signup'));
+        }
+
+        function toggleThemeAuthenticated(userId) {
+            const current = root.getAttribute('data-theme');
+            const next = current === 'light' ? 'dark' : 'light';
+            root.setAttribute('data-theme', next);
+            localStorage.setItem(`theme_${userId}`, next);
+            const toggleBtn = document.getElementById('theme-toggle');
+            if (toggleBtn) toggleBtn.innerHTML = next === 'light' ? moonIcon : sunIcon;
+        }
+
+        function openModal(mode) {
+            if (!supabaseClient) {
+                alert('Please replace YOUR_SUPABASE_URL and YOUR_SUPABASE_ANON_KEY inside the script tag first!');
+                return;
+            }
+            authMode = mode;
+            authNotice.style.display = 'none';
+            authEmailInput.value = '';
+            authPasswordInput.value = '';
+            authSubmitBtn.disabled = false;
+            resendBtn.style.display = 'none';
+            backToLoginLink.style.display = 'none';
+            forgotPasswordLink.style.display = 'inline';
+            passwordGroup.style.display = 'flex';
+            if (cooldownInterval) clearInterval(cooldownInterval);
+
+            if (mode === 'login') {
+                modalTitle.innerText = 'Log In';
+                modalDesc.innerText = 'Enter your email and password to access your account.';
+                authSubmitBtn.innerText = 'Log In';
+            } else if (mode === 'signup') {
+                modalTitle.innerText = 'Sign Up';
+                modalDesc.innerText = 'Enter your email. A verification link will be sent to your inbox.';
+                authSubmitBtn.innerText = 'Create Account';
+                forgotPasswordLink.style.display = 'none';
+            } else if (mode === 'forgot') {
+                modalTitle.innerText = 'Reset Password';
+                modalDesc.innerText = "Enter your account email and we'll send you a link to reset your password.";
+                authSubmitBtn.innerText = 'Send Reset Link';
+                passwordGroup.style.display = 'none';
+                forgotPasswordLink.style.display = 'none';
+                backToLoginLink.style.display = 'inline';
+            }
+            authModal.classList.add('open');
+        }
+
+        closeModalBtn.addEventListener('click', () => {
+            authModal.classList.remove('open');
+            if (cooldownInterval) clearInterval(cooldownInterval);
+        });
+
+        forgotPasswordLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            openModal('forgot');
+        });
+
+        backToLoginLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            openModal('login');
+        });
+
+        // Show/hide eye buttons for the login/signup/forgot modal.
+        setupVisibilityToggle('toggle-auth-email-visibility', 'auth-email');
+        setupVisibilityToggle('toggle-auth-password-visibility', 'auth-password');
+
+        /* =========================================
+           DELETE ACCOUNT
+           The Supabase JS client has no self-service "delete my
+           account" method — deleting a row from auth.users needs
+           elevated privileges. Rather than putting a service_role
+           key in this public HTML file (which would let anyone
+           delete anyone's account), this calls a Postgres RPC
+           function you create once in the Supabase SQL Editor. That
+           function runs as SECURITY DEFINER but only ever deletes
+           auth.uid() — the caller's own row — so it's safe to expose
+           to any logged-in user. See the SQL at the bottom of this
+           file's comments / the setup instructions for the exact
+           statement to run once.
+           ========================================= */
+        const deleteModal = document.getElementById('delete-modal');
+        const closeDeleteModalBtn = document.getElementById('close-delete-modal');
+        const cancelDeleteBtn = document.getElementById('cancel-delete-btn');
+        const confirmDeleteBtn = document.getElementById('confirm-delete-btn');
+        const deleteEmailInput = document.getElementById('delete-email-confirm');
+        const deleteCheckbox = document.getElementById('delete-confirm-checkbox');
+        const deleteNotice = document.getElementById('delete-notice');
+        let pendingDeleteEmail = null;
+
+        setupVisibilityToggle('toggle-delete-email-visibility', 'delete-email-confirm');
+
+        function openDeleteModal(email) {
+            pendingDeleteEmail = email;
+            deleteEmailInput.value = '';
+            deleteEmailInput.type = 'password';
+            document.getElementById('toggle-delete-email-visibility').innerHTML = eyeIcon;
+            deleteCheckbox.checked = false;
+            confirmDeleteBtn.disabled = true;
+            confirmDeleteBtn.innerText = 'Delete Account';
+            deleteNotice.style.display = 'none';
+            deleteModal.classList.add('open');
+        }
+
+        function closeDeleteModal() {
+            deleteModal.classList.remove('open');
+        }
+
+        closeDeleteModalBtn.addEventListener('click', closeDeleteModal);
+        cancelDeleteBtn.addEventListener('click', closeDeleteModal);
+
+        function updateDeleteButtonState() {
+            const typedEmail = deleteEmailInput.value.trim().toLowerCase();
+            const emailMatches = pendingDeleteEmail && typedEmail === pendingDeleteEmail.toLowerCase();
+            confirmDeleteBtn.disabled = !(emailMatches && deleteCheckbox.checked);
+        }
+        deleteEmailInput.addEventListener('input', updateDeleteButtonState);
+        deleteCheckbox.addEventListener('change', updateDeleteButtonState);
+
+        function showDeleteNotice(msg, isError) {
+            deleteNotice.style.display = 'block';
+            deleteNotice.innerText = msg;
+            deleteNotice.style.color = isError ? '#ef4444' : '#22c55e';
+            deleteNotice.style.background = isError ? 'rgba(239, 68, 68, 0.1)' : 'rgba(34, 197, 94, 0.1)';
+        }
+
+        confirmDeleteBtn.addEventListener('click', async () => {
+            confirmDeleteBtn.disabled = true;
+            confirmDeleteBtn.innerText = 'Deleting...';
+
+            const { error } = await supabaseClient.rpc('delete_user');
+
+            if (error) {
+                showDeleteNotice(
+                    error.message.includes('function public.delete_user')
+                        ? 'The delete_user database function hasn\'t been set up yet. See the setup instructions.'
+                        : error.message,
+                    true
+                );
+                confirmDeleteBtn.disabled = false;
+                confirmDeleteBtn.innerText = 'Delete Account';
+                return;
+            }
+
+            // The account row is gone, so the current session token now
+            // points at a user that no longer exists — signOut can throw
+            // here, which is expected. We ignore that and just clear out
+            // this browser's local state before sending them back to a
+            // clean logged-out homepage.
+            try {
+                await supabaseClient.auth.signOut();
+            } catch (e) {
+                // Expected: session references a now-deleted user.
+            }
+
+            Object.keys(localStorage).forEach((key) => {
+                if (key.startsWith('theme_') || key.startsWith('auth_cooldown_')) {
+                    localStorage.removeItem(key);
+                }
+            });
+
+            window.location.href = 'index.html';
+        });
+
+        /* =========================================
+           RESEND / RATE-LIMIT COOLDOWN HELPERS
+           This is what stops "emails can be sent again and
+           again" — every send is timestamped per email+type in
+           localStorage, so the button stays disabled with a
+           live countdown until the cooldown has actually passed,
+           even across page reloads.
+           ========================================= */
+        function cooldownKey(email, type) {
+            return `auth_cooldown_${type}_${email.trim().toLowerCase()}`;
+        }
+
+        function startCooldown(email, type) {
+            localStorage.setItem(cooldownKey(email, type), Date.now().toString());
+        }
+
+        function remainingCooldown(email, type) {
+            const stored = localStorage.getItem(cooldownKey(email, type));
+            if (!stored) return 0;
+            const elapsedSeconds = (Date.now() - parseInt(stored, 10)) / 1000;
+            return Math.max(0, Math.ceil(RESEND_COOLDOWN_SECONDS - elapsedSeconds));
+        }
+
+        // Disables `button`, showing a live "Label (Ns)" countdown, until the
+        // cooldown for this email+type expires — then restores it to `label`.
+        function runCooldownOnButton(button, email, type, label) {
+            if (cooldownInterval) clearInterval(cooldownInterval);
+
+            const tick = () => {
+                const remaining = remainingCooldown(email, type);
+                if (remaining <= 0) {
+                    clearInterval(cooldownInterval);
+                    button.disabled = false;
+                    button.innerText = label;
+                } else {
+                    button.disabled = true;
+                    button.innerText = `${label} (${remaining}s)`;
+                }
+            };
+            tick();
+            cooldownInterval = setInterval(tick, 1000);
+        }
+
+        authSubmitBtn.addEventListener('click', async () => {
+            const email = authEmailInput.value.trim();
+            const password = authPasswordInput.value.trim();
+
+            if (!email) {
+                showNotice('Please enter your email address.', true);
+                return;
+            }
+
+            // --- FORGOT PASSWORD ---
+            if (authMode === 'forgot') {
+                const remaining = remainingCooldown(email, 'reset');
+                if (remaining > 0) {
+                    showNotice(`Please wait ${remaining}s before requesting another reset email.`, true);
+                    return;
+                }
+
+                authSubmitBtn.disabled = true;
+                authSubmitBtn.innerText = 'Sending...';
+
+                const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
+                    redirectTo: REDIRECT_RESET_PASSWORD
+                });
+
+                if (error) {
+                    showNotice(error.message, true);
+                    authSubmitBtn.disabled = false;
+                    authSubmitBtn.innerText = 'Send Reset Link';
+                } else {
+                    showNotice('Reset link sent! Check your inbox for the email.', false);
+                    startCooldown(email, 'reset');
+                    runCooldownOnButton(authSubmitBtn, email, 'reset', 'Send Reset Link');
+                }
+                return;
+            }
+
+            // --- LOGIN / SIGNUP ---
+            if (!password) {
+                showNotice('Please complete all fields.', true);
+                return;
+            }
+
+            if (authMode === 'signup') {
+                const remaining = remainingCooldown(email, 'signup');
+                if (remaining > 0) {
+                    showNotice(`Please wait ${remaining}s before requesting another verification email.`, true);
+                    return;
+                }
+            }
+
+            authSubmitBtn.disabled = true;
+            authSubmitBtn.innerText = 'Processing...';
+
+            if (authMode === 'signup') {
+                const { data, error } = await supabaseClient.auth.signUp({
+                    email: email,
+                    password: password,
+                    options: { emailRedirectTo: REDIRECT_EMAIL_VERIFICATION }
+                });
+                if (error) {
+                    showNotice(error.message, true);
+                    authSubmitBtn.disabled = false;
+                    authSubmitBtn.innerText = 'Create Account';
+                } else {
+                    showNotice('Verification email sent! Check your inbox and confirm your email to sign in.', false);
+                    startCooldown(email, 'signup');
+                    resendBtn.style.display = 'block';
+                    runCooldownOnButton(resendBtn, email, 'signup', 'Resend verification email');
+                    authSubmitBtn.disabled = false;
+                    authSubmitBtn.innerText = 'Create Account';
+                }
+            } else {
+                const { data, error } = await supabaseClient.auth.signInWithPassword({
+                    email: email,
+                    password: password
+                });
+                if (error) {
+                    showNotice(error.message, true);
+                    // Supabase returns this specific message when the account
+                    // exists but hasn't confirmed their email yet — surface
+                    // the resend option right here instead of a dead end.
+                    if (error.message.toLowerCase().includes('email not confirmed')) {
+                        resendBtn.style.display = 'block';
+                        const remaining = remainingCooldown(email, 'signup');
+                        if (remaining > 0) {
+                            runCooldownOnButton(resendBtn, email, 'signup', 'Resend verification email');
+                        }
+                    }
+                    authSubmitBtn.disabled = false;
+                    authSubmitBtn.innerText = 'Log In';
+                } else {
+                    authModal.classList.remove('open');
+                    authSubmitBtn.disabled = false;
+                    authSubmitBtn.innerText = 'Log In';
+                }
+            }
+        });
+
+        resendBtn.addEventListener('click', async () => {
+            const email = authEmailInput.value.trim();
+            if (!email) {
+                showNotice('Enter your email address above first.', true);
+                return;
+            }
+
+            const remaining = remainingCooldown(email, 'signup');
+            if (remaining > 0) {
+                showNotice(`Please wait ${remaining}s before resending.`, true);
+                return;
+            }
+
+            resendBtn.disabled = true;
+            resendBtn.innerText = 'Sending...';
+
+            const { error } = await supabaseClient.auth.resend({
+                type: 'signup',
+                email: email,
+                options: { emailRedirectTo: REDIRECT_EMAIL_VERIFICATION }
+            });
+
+            if (error) {
+                showNotice(error.message, true);
+                resendBtn.disabled = false;
+                resendBtn.innerText = 'Resend verification email';
+            } else {
+                showNotice('Verification email resent! Check your inbox.', false);
+                startCooldown(email, 'signup');
+                runCooldownOnButton(resendBtn, email, 'signup', 'Resend verification email');
+            }
+        });
+
+        function showNotice(msg, isError) {
+            authNotice.style.display = 'block';
+            authNotice.innerText = msg;
+            authNotice.style.color = isError ? '#ef4444' : '#22c55e';
+            authNotice.style.background = isError ? 'rgba(239, 68, 68, 0.1)' : 'rgba(34, 197, 94, 0.1)';
+        }
+
+        /* =========================================
+           2. INSPECTION BLOCKER (DevTools Protection)
+           ========================================= */
+        function checkDevTools() {
+            const threshold = 160;
+            const widthThreshold = window.outerWidth - window.innerWidth > threshold;
+            const heightThreshold = window.outerHeight - window.innerHeight > threshold;
+            
+            if (widthThreshold || heightThreshold) {
+                if (window.location.pathname.indexOf('devtools.html') === -1) {
+                    window.location.href = 'devtools.html';
+                }
+            }
+        }
+        setInterval(checkDevTools, 500);
+
+        document.addEventListener('contextmenu', e => e.preventDefault());
+        document.addEventListener('keydown', e => {
+            if (e.key === 'F12' || 
+                (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) || 
+                (e.ctrlKey && e.key === 'U')) {
+                e.preventDefault();
+                return false;
+            }
+        });
+
+        /* =========================================
+           3. NAVIGATION & SCROLLSPY
+           ========================================= */
+        const navLinks = document.querySelectorAll('.sidebar-menu .nav-link');
+        let isManualScrolling = false;
+
+        navLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                isManualScrolling = true;
+                const targetId = link.getAttribute('href');
+                const targetElement = document.querySelector(targetId);
+                if (targetElement) {
+                    navLinks.forEach(l => l.classList.remove('active'));
+                    link.classList.add('active');
+                    
+                    targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    
+                    setTimeout(() => {
+                        isManualScrolling = false;
+                    }, 800);
+                }
+            });
+        });
+
+        const sections = document.querySelectorAll('.category-container, .hero-section');
+        
+        window.addEventListener('scroll', () => {
+            if (isManualScrolling) return;
+
+            let currentId = 'overview';
+            const scrollPos = window.scrollY + 200;
+
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.offsetHeight;
+                if (scrollPos >= sectionTop && scrollPos < sectionTop + sectionHeight) {
+                    currentId = section.getAttribute('id');
+                }
+            });
+
+            if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 50) {
+                currentId = 'core-tracks';
+            }
+
+            navLinks.forEach(link => {
+                if (link.getAttribute('href') === `#${currentId}`) {
+                    navLinks.forEach(l => l.classList.remove('active'));
+                    link.classList.add('active');
+                }
+            });
+        });
+
+        /* =========================================
+           4. LIVE SEARCH FILTER
+           ========================================= */
+        const searchInput = document.getElementById('live-search');
+        const cards = document.querySelectorAll('.card');
+
+        searchInput.addEventListener('input', (e) => {
+            const term = e.target.value.toLowerCase().trim();
+            cards.forEach(card => {
+                const title = card.querySelector('h3').innerText.toLowerCase();
+                const desc = card.querySelector('p').innerText.toLowerCase();
+                const keywords = card.getAttribute('data-title') || '';
+
+                if (title.includes(term) || desc.includes(term) || keywords.includes(term)) {
+                    card.style.display = 'flex';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

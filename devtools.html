@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Access Restricted — Developer Tools Detected</title>
+    
+    <!-- Supabase Client to check session state -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        /* =========================================
+           DYNAMIC THEME TOKENS (Synced with User)
+           ========================================= */
+        :root[data-theme="light"] {
+            --bg-color: #f8fafc;
+            --text-main: #090d16;
+            --text-muted: #64748b;
+            --primary-color: #2563eb;
+            --primary-glow: rgba(37, 99, 235, 0.12);
+            --border-color: #e2e8f0;
+            --card-bg: #ffffff;
+            --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.08);
+            --grid-line: rgba(0, 0, 0, 0.05);
+        }
+
+        :root[data-theme="dark"] {
+            --bg-color: #000000;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --primary-color: #3b82f6;
+            --primary-glow: rgba(59, 130, 246, 0.25);
+            --border-color: #121216;
+            --card-bg: #050508;
+            --shadow-lg: 0 20px 40px -10px rgba(0, 0, 0, 0.95);
+            --grid-line: rgba(59, 130, 246, 0.09);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background-image: linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+                              linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+            background-size: 48px 48px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .warning-card {
+            position: relative;
+            z-index: 1;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 18px;
+            padding: 3rem 2.5rem;
+            max-width: 480px;
+            width: 90%;
+            text-align: center;
+            box-shadow: var(--shadow-lg);
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+
+        .warning-icon {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 1.5rem auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 16px;
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+
+        .warning-icon svg {
+            width: 28px;
+            height: 28px;
+            stroke-width: 2.2;
+        }
+
+        h1 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+            letter-spacing: -0.02em;
+        }
+
+        p {
+            color: var(--text-muted);
+            font-size: 0.93rem;
+            line-height: 1.6;
+            margin-bottom: 1.75rem;
+        }
+
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--primary-glow);
+            color: var(--primary-color);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            padding: 0.55rem 1.1rem;
+            border-radius: 10px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            letter-spacing: -0.01em;
+        }
+
+        .pulse-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--primary-color);
+            border-radius: 50%;
+            box-shadow: 0 0 8px var(--primary-color);
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.95); opacity: 0.8; }
+            50% { transform: scale(1.25); opacity: 1; }
+            100% { transform: scale(0.95); opacity: 0.8; }
+        }
+    </style>
+
+    <script>
+        // Default to Light Mode if not signed up or if light mode is selected
+        const SUPABASE_URL = 'https://uxhkeswhlkktycbjitnq.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV4aGtlc3dobGtrdHljYmppdG5xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODczMTQ1MjAsImV4cCI6MjEwMjg5MDUyMH0.z5BA_7NFc1PZ5W-L55PFEzahm56J5ar1jCYeMacOnyU';
+        
+        async function applyDevToolsTheme() {
+            try {
+                const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                const { data: { session } } = await client.auth.getSession();
+                
+                if (!session || !session.user) {
+                    document.documentElement.setAttribute('data-theme', 'light');
+                    return;
+                }
+
+                const savedTheme = localStorage.getItem(`theme_${session.user.id}`) || 'light';
+                document.documentElement.setAttribute('data-theme', savedTheme);
+            } catch (e) {
+                document.documentElement.setAttribute('data-theme', 'light');
+            }
+        }
+        applyDevToolsTheme();
+    </script>
+</head>
+<body>
+
+    <div class="warning-card">
+        <div class="warning-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        </div>
+        <h1>Developer Tools Restricted</h1>
+        <p>Inspection is disabled on this handbook. Close your developer tools to automatically return to the main documentation.</p>
+        <div class="status-pill">
+            <div class="pulse-dot"></div>
+            <span>Waiting for inspector closure...</span>
+        </div>
+    </div>
+
+    <script>
+        function monitorDevToolsClosed() {
+            const threshold = 160;
+            const widthThreshold = window.outerWidth - window.innerWidth > threshold;
+            const heightThreshold = window.outerHeight - window.innerHeight > threshold;
+            
+            if (!widthThreshold && !heightThreshold) {
+                window.location.href = 'index.html';
+            }
+        }
+        setInterval(monitorDevToolsClosed, 500);
+
+        document.addEventListener('contextmenu', e => e.preventDefault());
+        document.addEventListener('keydown', e => {
+            if (e.key === 'F12' || 
+                (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) || 
+                (e.ctrlKey && e.key === 'U')) {
+                e.preventDefault();
+                return false;
+            }
+        });
+    </script>
+</body>
+</html>
