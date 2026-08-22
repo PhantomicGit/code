@@ -1098,20 +1098,35 @@
 
         let authMode = 'login'; // 'login' | 'signup'
 
-        // Supabase's auth system is built around email/password, but we
-        // never show the user an email at all — usernames only, like a
-        // game account. Behind the scenes each username is mapped to a
-        // private, deterministic fake address on a domain nobody owns or
-        // sends real mail to. Since "Confirm Email" is turned OFF in the
-        // Supabase dashboard (Authentication -> Providers -> Email), no
-        // email ever actually gets sent — signUp() returns a logged-in
-        // session immediately. This is what removes SMTP/domain/rate-limit
-        // problems from the picture entirely.
+        // Accounts are username + password only. Signup goes through the
+        // signup_with_username RPC (no mailer). Login still uses Supabase
+        // sessions; a private mapping is used internally and never shown.
         const FAKE_EMAIL_DOMAIN = 'handbook.internal';
         const USERNAME_PATTERN = /^[a-zA-Z0-9_]{3,20}$/;
 
         function usernameToEmail(username) {
             return `${username.trim().toLowerCase()}@${FAKE_EMAIL_DOMAIN}`;
+        }
+
+        function friendlyAuthError(raw) {
+            const msg = String(raw || '');
+            const lower = msg.toLowerCase();
+            if (lower.includes('function public.signup_with_username') || lower.includes('could not find the function')) {
+                return 'Signup is not set up yet. Run supabase-setup.sql in the Supabase SQL Editor, then try again.';
+            }
+            if (lower.includes('email rate limit') || lower.includes('over_email_send_rate_limit') || lower.includes('rate limit')) {
+                return 'Too many attempts. Wait a few minutes and try again.';
+            }
+            if (lower.includes('already registered') || lower.includes('already been registered') || lower.includes('already exists')) {
+                return 'That username is already taken. Try another.';
+            }
+            if (lower.includes('permission denied') || lower.includes('row-level security')) {
+                return 'Could not create that account. Run supabase-setup.sql in the Supabase SQL Editor, then try again.';
+            }
+            if (lower.includes('handbook.internal') || lower.includes('invalid email') || lower.includes('error sending') || lower.includes('unable to validate email')) {
+                return 'Could not create that account. Run supabase-setup.sql in the Supabase SQL Editor, then try again.';
+            }
+            return msg.replace(/[^\s]+@[^\s]+/g, 'username').replace(/handbook\.internal/gi, 'username');
         }
 
         const moonIcon = `<svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" fill="none"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
@@ -1160,7 +1175,8 @@
         function updateUIForSession(session) {
             if (session && session.user) {
                 // USER SIGNED IN
-                const username = session.user.user_metadata?.username || session.user.email.split('@')[0];
+                const username = session.user.user_metadata?.username
+                    || (session.user.email ? session.user.email.split('@')[0] : 'user');
                 const savedTheme = localStorage.getItem(`theme_${session.user.id}`) || 'dark';
                 root.setAttribute('data-theme', savedTheme);
 
