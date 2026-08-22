@@ -584,30 +584,32 @@
             <h2 id="modal-title">Log In</h2>
             <p id="modal-desc">Sign in with your username and password.</p>
             
+            <form id="auth-form" autocomplete="off" novalidate>
             <div class="auth-notice" id="auth-notice"></div>
 
             <div class="form-group">
                 <label>Username</label>
-                <input type="text" id="auth-username" placeholder="username" autocomplete="username" maxlength="20">
+                <input type="text" id="auth-username" name="handbook-handle" placeholder="username" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" inputmode="text" data-1p-ignore="true" data-lpignore="true" maxlength="20">
             </div>
             <div class="form-group" id="password-group">
                 <label>Password</label>
                 <div class="input-wrapper">
-                    <input type="password" id="auth-password" placeholder="••••••••" autocomplete="current-password">
+                    <input type="password" id="auth-password" name="handbook-password" placeholder="••••••••" autocomplete="current-password" data-1p-ignore="true" data-lpignore="true">
                     <button type="button" class="toggle-visibility-btn" id="toggle-auth-password-visibility" aria-label="Show password"></button>
                 </div>
             </div>
             <div class="form-group" id="confirm-password-group" style="display:none;">
                 <label>Confirm Password</label>
                 <div class="input-wrapper">
-                    <input type="password" id="auth-confirm-password" placeholder="••••••••" autocomplete="new-password">
+                    <input type="password" id="auth-confirm-password" name="handbook-confirm-password" placeholder="••••••••" autocomplete="new-password" data-1p-ignore="true" data-lpignore="true">
                     <button type="button" class="toggle-visibility-btn" id="toggle-auth-confirm-password-visibility" aria-label="Show password"></button>
                 </div>
             </div>
 
             <div class="modal-actions">
-                <button id="auth-submit-btn" class="btn-submit">Continue</button>
+                <button type="submit" id="auth-submit-btn" class="btn-submit">Continue</button>
             </div>
+            </form>
         </div>
     </div>
 
@@ -1221,11 +1223,14 @@
                 modalTitle.innerText = 'Log In';
                 modalDesc.innerText = 'Sign in with your username and password.';
                 authSubmitBtn.innerText = 'Log In';
+                authPasswordInput.setAttribute('autocomplete', 'current-password');
             } else if (mode === 'signup') {
                 modalTitle.innerText = 'Sign Up';
                 modalDesc.innerText = 'Pick a username and password. No email needed.';
                 authSubmitBtn.innerText = 'Create Account';
+                authPasswordInput.setAttribute('autocomplete', 'new-password');
             }
+            authUsernameInput.setAttribute('autocomplete', 'off');
             authModal.classList.add('open');
         }
 
@@ -1345,18 +1350,21 @@
                 .eq('username', usernameLower)
                 .maybeSingle();
             if (error) {
-                // profiles table not set up yet, or a real network/RLS issue —
-                // surface it rather than silently letting a dupe through.
+                const msg = (error.message || '').toLowerCase();
                 throw new Error(
                     error.message.includes('relation "public.profiles"')
-                        ? 'The profiles table hasn\'t been set up yet. See the setup instructions.'
-                        : error.message
+                        ? 'The profiles table hasn\'t been set up yet. Run supabase-setup.sql in the Supabase SQL Editor.'
+                        : (msg.includes('permission denied') || msg.includes('row-level security'))
+                            ? 'Could not check that username. Run supabase-setup.sql in the Supabase SQL Editor, then try again.'
+                            : error.message
                 );
             }
             return !!data;
         }
 
-        authSubmitBtn.addEventListener('click', async () => {
+        const authForm = document.getElementById('auth-form');
+        authForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
             const rawUsername = authUsernameInput.value.trim();
             const password = authPasswordInput.value;
 
@@ -1423,9 +1431,44 @@
                     .insert({ id: data.user.id, username: usernameLower });
 
                 if (profileError) {
-                    // Rare race: someone else grabbed the name between the
-                    // check above and now. Sign the half-created account
-                    // back out and ask them to try a different name.
+                    const msg = (profileError.message || '').toLowerCase();
+                    const alreadyExists =
+                        profileError.code === '23505' ||
+                        msg.includes('duplicate') ||
+                        msg.includes('already exists') ||
+                        msg.includes('unique');
+
+                    if (alreadyExists) {
+                        const { data: ownProfile } = await supabaseClient
+                            .from('profiles')
+                            .select('id')
+                            .eq('id', data.user.id)
+                            .maybeSingle();
+
+                        if (ownProfile) {
+                            authSubmitBtn.disabled = false;
+                            authSubmitBtn.innerText = 'Create Account';
+                            authModal.classList.remove('open');
+                            return;
+                        }
+
+                        await supabaseClient.auth.signOut();
+                        showNotice('That username was just taken. Try another.', true);
+                        authSubmitBtn.disabled = false;
+                        authSubmitBtn.innerText = 'Create Account';
+                        return;
+                    }
+
+                    if (msg.includes('permission denied') || msg.includes('row-level security')) {
+                        showNotice(
+                            'Could not save your username. Run supabase-setup.sql in the Supabase SQL Editor, then try again.',
+                            true
+                        );
+                        authSubmitBtn.disabled = false;
+                        authSubmitBtn.innerText = 'Create Account';
+                        return;
+                    }
+
                     await supabaseClient.auth.signOut();
                     showNotice('That username was just taken. Try another.', true);
                     authSubmitBtn.disabled = false;
