@@ -582,16 +582,13 @@
         <div class="modal-card">
             <button class="modal-close" id="close-modal">&times;</button>
             <h2 id="modal-title">Log In</h2>
-            <p id="modal-desc">Sign in to unlock user features and theme customisation.</p>
+            <p id="modal-desc">Sign in with your username and password.</p>
             
             <div class="auth-notice" id="auth-notice"></div>
 
             <div class="form-group">
-                <label>Email Address</label>
-                <div class="input-wrapper">
-                    <input type="password" id="auth-email" placeholder="you@example.com" autocomplete="username">
-                    <button type="button" class="toggle-visibility-btn" id="toggle-auth-email-visibility" aria-label="Show email"></button>
-                </div>
+                <label>Username</label>
+                <input type="text" id="auth-username" placeholder="username" autocomplete="username" maxlength="20">
             </div>
             <div class="form-group" id="password-group">
                 <label>Password</label>
@@ -600,15 +597,17 @@
                     <button type="button" class="toggle-visibility-btn" id="toggle-auth-password-visibility" aria-label="Show password"></button>
                 </div>
             </div>
-
-            <a href="#" id="forgot-password-link" class="modal-link">Forgot your password?</a>
-            <a href="#" id="back-to-login-link" class="modal-link" style="display:none;">&larr; Back to log in</a>
+            <div class="form-group" id="confirm-password-group" style="display:none;">
+                <label>Confirm Password</label>
+                <div class="input-wrapper">
+                    <input type="password" id="auth-confirm-password" placeholder="••••••••" autocomplete="new-password">
+                    <button type="button" class="toggle-visibility-btn" id="toggle-auth-confirm-password-visibility" aria-label="Show password"></button>
+                </div>
+            </div>
 
             <div class="modal-actions">
                 <button id="auth-submit-btn" class="btn-submit">Continue</button>
             </div>
-
-            <button id="resend-btn" class="btn-resend" style="display:none;">Resend verification email</button>
         </div>
     </div>
 
@@ -622,11 +621,8 @@
             <div class="auth-notice" id="delete-notice"></div>
 
             <div class="form-group">
-                <label>Confirm Your Email</label>
-                <div class="input-wrapper">
-                    <input type="password" id="delete-email-confirm" placeholder="you@example.com" autocomplete="off">
-                    <button type="button" class="toggle-visibility-btn" id="toggle-delete-email-visibility" aria-label="Show email"></button>
-                </div>
+                <label>Confirm Your Username</label>
+                <input type="text" id="delete-username-confirm" placeholder="username" autocomplete="off">
             </div>
 
             <label class="checkbox-row">
@@ -1091,26 +1087,30 @@
         const closeModalBtn = document.getElementById('close-modal');
         const modalTitle = document.getElementById('modal-title');
         const modalDesc = document.getElementById('modal-desc');
-        const authEmailInput = document.getElementById('auth-email');
+        const authUsernameInput = document.getElementById('auth-username');
         const authPasswordInput = document.getElementById('auth-password');
+        const authConfirmPasswordInput = document.getElementById('auth-confirm-password');
+        const confirmPasswordGroup = document.getElementById('confirm-password-group');
         const authSubmitBtn = document.getElementById('auth-submit-btn');
         const authNotice = document.getElementById('auth-notice');
-        const passwordGroup = document.getElementById('password-group');
-        const forgotPasswordLink = document.getElementById('forgot-password-link');
-        const backToLoginLink = document.getElementById('back-to-login-link');
-        const resendBtn = document.getElementById('resend-btn');
 
-        let authMode = 'login'; // 'login' | 'signup' | 'forgot'
+        let authMode = 'login'; // 'login' | 'signup'
 
-        // Where Supabase should send people after they click the email link.
-        // These are YOUR pages, not the default Supabase confirmation URL.
-        const REDIRECT_EMAIL_VERIFICATION = 'https://phantomicgit.github.io/code/emailverification.html';
-        const REDIRECT_RESET_PASSWORD = 'https://phantomicgit.github.io/code/resetpassword.html';
+        // Supabase's auth system is built around email/password, but we
+        // never show the user an email at all — usernames only, like a
+        // game account. Behind the scenes each username is mapped to a
+        // private, deterministic fake address on a domain nobody owns or
+        // sends real mail to. Since "Confirm Email" is turned OFF in the
+        // Supabase dashboard (Authentication -> Providers -> Email), no
+        // email ever actually gets sent — signUp() returns a logged-in
+        // session immediately. This is what removes SMTP/domain/rate-limit
+        // problems from the picture entirely.
+        const FAKE_EMAIL_DOMAIN = 'handbook.internal';
+        const USERNAME_PATTERN = /^[a-zA-Z0-9_]{3,20}$/;
 
-        // Minimum wait (seconds) before the same email can request another
-        // verification/reset email. Prevents spam-clicking the button.
-        const RESEND_COOLDOWN_SECONDS = 60;
-        let cooldownInterval = null;
+        function usernameToEmail(username) {
+            return `${username.trim().toLowerCase()}@${FAKE_EMAIL_DOMAIN}`;
+        }
 
         const moonIcon = `<svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" fill="none"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
         const sunIcon = `<svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" fill="none"><circle cx="12" cy="12" r="4" stroke-width="2"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" stroke-width="2" stroke-linecap="round"/></svg>`;
@@ -1119,9 +1119,6 @@
         const eyeOffIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a20.3 20.3 0 0 1 5.06-6.06M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a20.3 20.3 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`;
 
         // Wires up a show/hide eye button next to a password-masked input.
-        // Field starts masked (type="password") and reveals as type="text"
-        // when toggled. Works the same for the "hidden by default" email
-        // fields as it does for real password fields.
         function setupVisibilityToggle(buttonId, inputId) {
             const btn = document.getElementById(buttonId);
             const input = document.getElementById(inputId);
@@ -1161,12 +1158,12 @@
         function updateUIForSession(session) {
             if (session && session.user) {
                 // USER SIGNED IN
-                const userEmail = session.user.email;
+                const username = session.user.user_metadata?.username || session.user.email.split('@')[0];
                 const savedTheme = localStorage.getItem(`theme_${session.user.id}`) || 'dark';
                 root.setAttribute('data-theme', savedTheme);
 
                 authNavControls.innerHTML = `
-                    <div class="user-badge" title="${userEmail}">${userEmail}</div>
+                    <div class="user-badge" title="${username}">${username}</div>
                     <button id="delete-account-btn" class="auth-btn danger">Delete Account</button>
                     <button id="sign-out-btn" class="auth-btn">Log Out</button>
                     <button id="theme-toggle" class="icon-btn" aria-label="Toggle Theme">${savedTheme === 'light' ? moonIcon : sunIcon}</button>
@@ -1179,7 +1176,7 @@
                 });
 
                 document.getElementById('theme-toggle').addEventListener('click', () => toggleThemeAuthenticated(session.user.id));
-                document.getElementById('delete-account-btn').addEventListener('click', () => openDeleteModal(userEmail));
+                document.getElementById('delete-account-btn').addEventListener('click', () => openDeleteModal(username));
             } else {
                 renderLoggedOutUI();
             }
@@ -1214,53 +1211,31 @@
             }
             authMode = mode;
             authNotice.style.display = 'none';
-            authEmailInput.value = '';
+            authUsernameInput.value = '';
             authPasswordInput.value = '';
+            authConfirmPasswordInput.value = '';
             authSubmitBtn.disabled = false;
-            resendBtn.style.display = 'none';
-            backToLoginLink.style.display = 'none';
-            forgotPasswordLink.style.display = 'inline';
-            passwordGroup.style.display = 'flex';
-            if (cooldownInterval) clearInterval(cooldownInterval);
+            confirmPasswordGroup.style.display = mode === 'signup' ? 'flex' : 'none';
 
             if (mode === 'login') {
                 modalTitle.innerText = 'Log In';
-                modalDesc.innerText = 'Enter your email and password to access your account.';
+                modalDesc.innerText = 'Sign in with your username and password.';
                 authSubmitBtn.innerText = 'Log In';
             } else if (mode === 'signup') {
                 modalTitle.innerText = 'Sign Up';
-                modalDesc.innerText = 'Enter your email. A verification link will be sent to your inbox.';
+                modalDesc.innerText = 'Pick a username and password. No email needed.';
                 authSubmitBtn.innerText = 'Create Account';
-                forgotPasswordLink.style.display = 'none';
-            } else if (mode === 'forgot') {
-                modalTitle.innerText = 'Reset Password';
-                modalDesc.innerText = "Enter your account email and we'll send you a link to reset your password.";
-                authSubmitBtn.innerText = 'Send Reset Link';
-                passwordGroup.style.display = 'none';
-                forgotPasswordLink.style.display = 'none';
-                backToLoginLink.style.display = 'inline';
             }
             authModal.classList.add('open');
         }
 
         closeModalBtn.addEventListener('click', () => {
             authModal.classList.remove('open');
-            if (cooldownInterval) clearInterval(cooldownInterval);
         });
 
-        forgotPasswordLink.addEventListener('click', (e) => {
-            e.preventDefault();
-            openModal('forgot');
-        });
-
-        backToLoginLink.addEventListener('click', (e) => {
-            e.preventDefault();
-            openModal('login');
-        });
-
-        // Show/hide eye buttons for the login/signup/forgot modal.
-        setupVisibilityToggle('toggle-auth-email-visibility', 'auth-email');
+        // Show/hide eye buttons for the password fields.
         setupVisibilityToggle('toggle-auth-password-visibility', 'auth-password');
+        setupVisibilityToggle('toggle-auth-confirm-password-visibility', 'auth-confirm-password');
 
         /* =========================================
            DELETE ACCOUNT
@@ -1280,18 +1255,14 @@
         const closeDeleteModalBtn = document.getElementById('close-delete-modal');
         const cancelDeleteBtn = document.getElementById('cancel-delete-btn');
         const confirmDeleteBtn = document.getElementById('confirm-delete-btn');
-        const deleteEmailInput = document.getElementById('delete-email-confirm');
+        const deleteUsernameInput = document.getElementById('delete-username-confirm');
         const deleteCheckbox = document.getElementById('delete-confirm-checkbox');
         const deleteNotice = document.getElementById('delete-notice');
-        let pendingDeleteEmail = null;
+        let pendingDeleteUsername = null;
 
-        setupVisibilityToggle('toggle-delete-email-visibility', 'delete-email-confirm');
-
-        function openDeleteModal(email) {
-            pendingDeleteEmail = email;
-            deleteEmailInput.value = '';
-            deleteEmailInput.type = 'password';
-            document.getElementById('toggle-delete-email-visibility').innerHTML = eyeIcon;
+        function openDeleteModal(username) {
+            pendingDeleteUsername = username;
+            deleteUsernameInput.value = '';
             deleteCheckbox.checked = false;
             confirmDeleteBtn.disabled = true;
             confirmDeleteBtn.innerText = 'Delete Account';
@@ -1307,11 +1278,11 @@
         cancelDeleteBtn.addEventListener('click', closeDeleteModal);
 
         function updateDeleteButtonState() {
-            const typedEmail = deleteEmailInput.value.trim().toLowerCase();
-            const emailMatches = pendingDeleteEmail && typedEmail === pendingDeleteEmail.toLowerCase();
-            confirmDeleteBtn.disabled = !(emailMatches && deleteCheckbox.checked);
+            const typed = deleteUsernameInput.value.trim().toLowerCase();
+            const matches = pendingDeleteUsername && typed === pendingDeleteUsername.toLowerCase();
+            confirmDeleteBtn.disabled = !(matches && deleteCheckbox.checked);
         }
-        deleteEmailInput.addEventListener('input', updateDeleteButtonState);
+        deleteUsernameInput.addEventListener('input', updateDeleteButtonState);
         deleteCheckbox.addEventListener('change', updateDeleteButtonState);
 
         function showDeleteNotice(msg, isError) {
@@ -1360,136 +1331,122 @@
         });
 
         /* =========================================
-           RESEND / RATE-LIMIT COOLDOWN HELPERS
-           This is what stops "emails can be sent again and
-           again" — every send is timestamped per email+type in
-           localStorage, so the button stays disabled with a
-           live countdown until the cooldown has actually passed,
-           even across page reloads.
+           USERNAME AVAILABILITY + SIGNUP / LOGIN
+           Login/signup both work off a "profiles" table (id, username)
+           with a UNIQUE constraint on username, set up once via the SQL
+           in the setup instructions. Availability is checked via a public
+           SELECT (allowed by RLS) before ever calling signUp, so a taken
+           name is caught immediately instead of after account creation.
            ========================================= */
-        function cooldownKey(email, type) {
-            return `auth_cooldown_${type}_${email.trim().toLowerCase()}`;
-        }
-
-        function startCooldown(email, type) {
-            localStorage.setItem(cooldownKey(email, type), Date.now().toString());
-        }
-
-        function remainingCooldown(email, type) {
-            const stored = localStorage.getItem(cooldownKey(email, type));
-            if (!stored) return 0;
-            const elapsedSeconds = (Date.now() - parseInt(stored, 10)) / 1000;
-            return Math.max(0, Math.ceil(RESEND_COOLDOWN_SECONDS - elapsedSeconds));
-        }
-
-        // Disables `button`, showing a live "Label (Ns)" countdown, until the
-        // cooldown for this email+type expires — then restores it to `label`.
-        function runCooldownOnButton(button, email, type, label) {
-            if (cooldownInterval) clearInterval(cooldownInterval);
-
-            const tick = () => {
-                const remaining = remainingCooldown(email, type);
-                if (remaining <= 0) {
-                    clearInterval(cooldownInterval);
-                    button.disabled = false;
-                    button.innerText = label;
-                } else {
-                    button.disabled = true;
-                    button.innerText = `${label} (${remaining}s)`;
-                }
-            };
-            tick();
-            cooldownInterval = setInterval(tick, 1000);
+        async function isUsernameTaken(usernameLower) {
+            const { data, error } = await supabaseClient
+                .from('profiles')
+                .select('username')
+                .eq('username', usernameLower)
+                .maybeSingle();
+            if (error) {
+                // profiles table not set up yet, or a real network/RLS issue —
+                // surface it rather than silently letting a dupe through.
+                throw new Error(
+                    error.message.includes('relation "public.profiles"')
+                        ? 'The profiles table hasn\'t been set up yet. See the setup instructions.'
+                        : error.message
+                );
+            }
+            return !!data;
         }
 
         authSubmitBtn.addEventListener('click', async () => {
-            const email = authEmailInput.value.trim();
-            const password = authPasswordInput.value.trim();
+            const rawUsername = authUsernameInput.value.trim();
+            const password = authPasswordInput.value;
 
-            if (!email) {
-                showNotice('Please enter your email address.', true);
+            if (!rawUsername || !password) {
+                showNotice('Please complete all fields.', true);
+                return;
+            }
+            if (!USERNAME_PATTERN.test(rawUsername)) {
+                showNotice('Username must be 3-20 characters: letters, numbers, and underscores only.', true);
                 return;
             }
 
-            // --- FORGOT PASSWORD ---
-            if (authMode === 'forgot') {
-                const remaining = remainingCooldown(email, 'reset');
-                if (remaining > 0) {
-                    showNotice(`Please wait ${remaining}s before requesting another reset email.`, true);
+            const usernameLower = rawUsername.toLowerCase();
+            const email = usernameToEmail(usernameLower);
+
+            if (authMode === 'signup') {
+                const confirmPassword = authConfirmPasswordInput.value;
+                if (password.length < 6) {
+                    showNotice('Password must be at least 6 characters.', true);
+                    return;
+                }
+                if (password !== confirmPassword) {
+                    showNotice('Passwords do not match.', true);
                     return;
                 }
 
                 authSubmitBtn.disabled = true;
-                authSubmitBtn.innerText = 'Sending...';
+                authSubmitBtn.innerText = 'Checking username...';
 
-                const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
-                    redirectTo: REDIRECT_RESET_PASSWORD
-                });
-
-                if (error) {
-                    showNotice(error.message, true);
+                try {
+                    const taken = await isUsernameTaken(usernameLower);
+                    if (taken) {
+                        showNotice('That username is already taken. Try another.', true);
+                        authSubmitBtn.disabled = false;
+                        authSubmitBtn.innerText = 'Create Account';
+                        return;
+                    }
+                } catch (err) {
+                    showNotice(err.message, true);
                     authSubmitBtn.disabled = false;
-                    authSubmitBtn.innerText = 'Send Reset Link';
-                } else {
-                    showNotice('Reset link sent! Check your inbox for the email.', false);
-                    startCooldown(email, 'reset');
-                    runCooldownOnButton(authSubmitBtn, email, 'reset', 'Send Reset Link');
-                }
-                return;
-            }
-
-            // --- LOGIN / SIGNUP ---
-            if (!password) {
-                showNotice('Please complete all fields.', true);
-                return;
-            }
-
-            if (authMode === 'signup') {
-                const remaining = remainingCooldown(email, 'signup');
-                if (remaining > 0) {
-                    showNotice(`Please wait ${remaining}s before requesting another verification email.`, true);
+                    authSubmitBtn.innerText = 'Create Account';
                     return;
                 }
-            }
 
-            authSubmitBtn.disabled = true;
-            authSubmitBtn.innerText = 'Processing...';
+                authSubmitBtn.innerText = 'Creating account...';
 
-            if (authMode === 'signup') {
                 const { data, error } = await supabaseClient.auth.signUp({
                     email: email,
                     password: password,
-                    options: { emailRedirectTo: REDIRECT_EMAIL_VERIFICATION }
+                    options: { data: { username: usernameLower } }
                 });
+
                 if (error) {
                     showNotice(error.message, true);
                     authSubmitBtn.disabled = false;
                     authSubmitBtn.innerText = 'Create Account';
-                } else {
-                    showNotice('Verification email sent! Check your inbox and confirm your email to sign in.', false);
-                    startCooldown(email, 'signup');
-                    resendBtn.style.display = 'block';
-                    runCooldownOnButton(resendBtn, email, 'signup', 'Resend verification email');
+                    return;
+                }
+
+                // Reserve the username row. "Confirm Email" is off, so
+                // data.user is already a logged-in session at this point.
+                const { error: profileError } = await supabaseClient
+                    .from('profiles')
+                    .insert({ id: data.user.id, username: usernameLower });
+
+                if (profileError) {
+                    // Rare race: someone else grabbed the name between the
+                    // check above and now. Sign the half-created account
+                    // back out and ask them to try a different name.
+                    await supabaseClient.auth.signOut();
+                    showNotice('That username was just taken. Try another.', true);
                     authSubmitBtn.disabled = false;
                     authSubmitBtn.innerText = 'Create Account';
+                    return;
                 }
+
+                authSubmitBtn.disabled = false;
+                authSubmitBtn.innerText = 'Create Account';
+                authModal.classList.remove('open');
             } else {
-                const { data, error } = await supabaseClient.auth.signInWithPassword({
+                authSubmitBtn.disabled = true;
+                authSubmitBtn.innerText = 'Logging in...';
+
+                const { error } = await supabaseClient.auth.signInWithPassword({
                     email: email,
                     password: password
                 });
+
                 if (error) {
-                    showNotice(error.message, true);
-                    // Supabase returns this specific message when the account
-                    // exists but hasn't confirmed their email yet — surface
-                    // the resend option right here instead of a dead end.
-                    if (error.message.toLowerCase().includes('email not confirmed')) {
-                        resendBtn.style.display = 'block';
-                        const remaining = remainingCooldown(email, 'signup');
-                        if (remaining > 0) {
-                            runCooldownOnButton(resendBtn, email, 'signup', 'Resend verification email');
-                        }
-                    }
+                    showNotice('Incorrect username or password.', true);
                     authSubmitBtn.disabled = false;
                     authSubmitBtn.innerText = 'Log In';
                 } else {
@@ -1497,39 +1454,6 @@
                     authSubmitBtn.disabled = false;
                     authSubmitBtn.innerText = 'Log In';
                 }
-            }
-        });
-
-        resendBtn.addEventListener('click', async () => {
-            const email = authEmailInput.value.trim();
-            if (!email) {
-                showNotice('Enter your email address above first.', true);
-                return;
-            }
-
-            const remaining = remainingCooldown(email, 'signup');
-            if (remaining > 0) {
-                showNotice(`Please wait ${remaining}s before resending.`, true);
-                return;
-            }
-
-            resendBtn.disabled = true;
-            resendBtn.innerText = 'Sending...';
-
-            const { error } = await supabaseClient.auth.resend({
-                type: 'signup',
-                email: email,
-                options: { emailRedirectTo: REDIRECT_EMAIL_VERIFICATION }
-            });
-
-            if (error) {
-                showNotice(error.message, true);
-                resendBtn.disabled = false;
-                resendBtn.innerText = 'Resend verification email';
-            } else {
-                showNotice('Verification email resent! Check your inbox.', false);
-                startCooldown(email, 'signup');
-                runCooldownOnButton(resendBtn, email, 'signup', 'Resend verification email');
             }
         });
 
