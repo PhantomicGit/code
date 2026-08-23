@@ -1101,7 +1101,7 @@
         // Accounts are username + password only. Signup goes through the
         // signup_with_username RPC (no mailer). Login still uses Supabase
         // sessions; a private mapping is used internally and never shown.
-        const FAKE_EMAIL_DOMAIN = 'handbook.internal';
+        const FAKE_EMAIL_DOMAIN = 'users.programminghandbook.app';
         const USERNAME_PATTERN = /^[a-zA-Z0-9_]{3,20}$/;
 
         function usernameToEmail(username) {
@@ -1123,10 +1123,10 @@
             if (lower.includes('permission denied') || lower.includes('row-level security')) {
                 return 'Could not create that account. Run supabase-setup.sql in the Supabase SQL Editor, then try again.';
             }
-            if (lower.includes('handbook.internal') || lower.includes('invalid email') || lower.includes('error sending') || lower.includes('unable to validate email')) {
+            if (lower.includes('programminghandbook.app') || lower.includes('invalid email') || lower.includes('error sending') || lower.includes('unable to validate email')) {
                 return 'Could not create that account. Run supabase-setup.sql in the Supabase SQL Editor, then try again.';
             }
-            return msg.replace(/[^\s]+@[^\s]+/g, 'username').replace(/handbook\.internal/gi, 'username');
+            return msg.replace(/[^\s]+@[^\s]+/g, 'username').replace(/users\.programminghandbook\.app/gi, 'username');
         }
 
         const moonIcon = `<svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" fill="none"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
@@ -1434,7 +1434,7 @@
                 });
 
                 if (error) {
-                    showNotice(error.message, true);
+                    showNotice(friendlyAuthError(error.message), true);
                     authSubmitBtn.disabled = false;
                     authSubmitBtn.innerText = 'Create Account';
                     return;
