@@ -566,6 +566,60 @@
         .card h3 { margin-bottom: 0.4rem; color: var(--text-main); font-size: 1.05rem; font-weight: 700; }
         .card p { margin-bottom: 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5; }
 
+        /* =========================================
+           LOCKED (WORK IN PROGRESS) CARDS
+           ========================================= */
+        .card.card-locked {
+            cursor: not-allowed;
+        }
+
+        .card.card-locked:hover {
+            transform: none;
+            border-color: var(--border-color);
+            background: var(--card-bg);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .card.card-locked > *:not(.lock-overlay) {
+            filter: blur(3px);
+            opacity: 0.45;
+            pointer-events: none;
+            user-select: none;
+        }
+
+        .lock-overlay {
+            position: absolute;
+            inset: 0;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0.6rem;
+            background: color-mix(in srgb, var(--card-bg) 55%, transparent);
+            -webkit-backdrop-filter: blur(1px);
+            backdrop-filter: blur(1px);
+        }
+
+        .lock-icon-badge {
+            width: 40px; height: 40px;
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 12px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+        }
+
+        .lock-icon-badge svg { width: 18px; height: 18px; stroke-width: 2.2; }
+
+        .lock-overlay span {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+        }
+
         @media (max-width: 1100px) {
             .card-grid { grid-template-columns: repeat(2, 1fr); }
         }
@@ -709,7 +763,7 @@
                         <h3>HTML</h3>
                         <p>Structure the web with semantic elements, forms, accessibility, and modern document trees.</p>
                     </a>
-                    <a href="css_intro.html" class="card" data-title="css styling layout flexbox grid">
+                    <a href="javascript:void(0)" class="card card-locked" data-title="css styling layout flexbox grid" aria-disabled="true" tabindex="-1" onclick="return false;"><div class="lock-overlay"><div class="lock-icon-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div><span>Work in progress...</span></div>
                         <div class="card-header-row">
                             <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
                             <div class="card-meta-right">
@@ -720,7 +774,7 @@
                         <h3>CSS</h3>
                         <p>Design responsive layouts using Flexbox, Grid, animations, and custom CSS variables.</p>
                     </a>
-                    <a href="js_intro.html" class="card" data-title="javascript js dynamic dom es6">
+                    <a href="javascript:void(0)" class="card card-locked" data-title="javascript js dynamic dom es6" aria-disabled="true" tabindex="-1" onclick="return false;"><div class="lock-overlay"><div class="lock-icon-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div><span>Work in progress...</span></div>
                         <div class="card-header-row">
                             <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
                             <div class="card-meta-right">
@@ -731,7 +785,7 @@
                         <h3>JavaScript</h3>
                         <p>Master asynchronous programming, closures, ES6+ features, and browser DOM manipulation.</p>
                     </a>
-                    <a href="ts_intro.html" class="card" data-title="typescript ts types interfaces">
+                    <a href="javascript:void(0)" class="card card-locked" data-title="typescript ts types interfaces" aria-disabled="true" tabindex="-1" onclick="return false;"><div class="lock-overlay"><div class="lock-icon-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div><span>Work in progress...</span></div>
                         <div class="card-header-row">
                             <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2l10 6.5v7L12 22 2 15.5v-7L12 2z"/></svg></div>
                             <div class="card-meta-right">
@@ -742,7 +796,7 @@
                         <h3>TypeScript</h3>
                         <p>Write robust, scalable code with static typing, interfaces, generics, and strict compilation.</p>
                     </a>
-                    <a href="php_intro.html" class="card" data-title="php backend server web">
+                    <a href="javascript:void(0)" class="card card-locked" data-title="php backend server web" aria-disabled="true" tabindex="-1" onclick="return false;"><div class="lock-overlay"><div class="lock-icon-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div><span>Work in progress...</span></div>
                         <div class="card-header-row">
                             <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a3 3 0 0 0 0-6Z"/></svg></div>
                             <div class="card-meta-right">
@@ -753,7 +807,7 @@
                         <h3>PHP</h3>
                         <p>Build dynamic server-side web apps, handle inputs, and connect with relational databases.</p>
                     </a>
-                    <a href="objc_intro.html" class="card" data-title="objective-c objc apple mac ios runtime">
+                    <a href="javascript:void(0)" class="card card-locked" data-title="objective-c objc apple mac ios runtime" aria-disabled="true" tabindex="-1" onclick="return false;"><div class="lock-overlay"><div class="lock-icon-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div><span>Work in progress...</span></div>
                         <div class="card-header-row">
                             <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 20.94c1.5 0 2.75 1.06 4 1.06 3 0 6-8 6-12.22A4.91 4.91 0 0 0 17 5c-2.22 0-4 1.44-5 1.44S9.22 5 7 5a4.91 4.91 0 0 0-5 4.78C2 14 5 22 8 22c1.25 0 2.5-1.06 4-1.06z"/><path d="M12 5.5a2.5 2.5 0 0 0 2.5-2.5"/></svg></div>
                             <div class="card-meta-right">
@@ -771,7 +825,7 @@
             <div id="systems" class="category-container">
                 <h2 class="category-title">⚙️ Systems & Compiled Languages</h2>
                 <div class="card-grid">
-                    <a href="cpp_intro.html" class="card" data-title="c++ cpp pointers memory">
+                    <a href="javascript:void(0)" class="card card-locked" data-title="c++ cpp pointers memory" aria-disabled="true" tabindex="-1" onclick="return false;"><div class="lock-overlay"><div class="lock-icon-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div><span>Work in progress...</span></div>
                         <div class="card-header-row">
                             <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m4.5 16.5 7.5-7.5 7.5 7.5"/><path d="m4.5 11.5 7.5-7.5 7.5 7.5"/></svg></div>
                             <div class="card-meta-right">
@@ -782,7 +836,7 @@
                         <h3>C++</h3>
                         <p>Dive into manual memory management, pointers, object-oriented principles, and templates.</p>
                     </a>
-                    <a href="c_intro.html" class="card" data-title="c programming low level systems">
+                    <a href="javascript:void(0)" class="card card-locked" data-title="c programming low level systems" aria-disabled="true" tabindex="-1" onclick="return false;"><div class="lock-overlay"><div class="lock-icon-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div><span>Work in progress...</span></div>
                         <div class="card-header-row">
                             <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></div>
                             <div class="card-meta-right">
@@ -793,7 +847,7 @@
                         <h3>C</h3>
                         <p>Understand computer architecture, pointers, memory allocation, and procedural logic.</p>
                     </a>
-                    <a href="rust_intro.html" class="card" data-title="rust memory safety concurrency">
+                    <a href="javascript:void(0)" class="card card-locked" data-title="rust memory safety concurrency" aria-disabled="true" tabindex="-1" onclick="return false;"><div class="lock-overlay"><div class="lock-icon-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div><span>Work in progress...</span></div>
                         <div class="card-header-row">
                             <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
                             <div class="card-meta-right">
@@ -804,7 +858,7 @@
                         <h3>Rust</h3>
                         <p>Build lightning-fast, crash-proof software with compile-time memory safety.</p>
                     </a>
-                    <a href="go_intro.html" class="card" data-title="go golang concurrency microservices">
+                    <a href="javascript:void(0)" class="card card-locked" data-title="go golang concurrency microservices" aria-disabled="true" tabindex="-1" onclick="return false;"><div class="lock-overlay"><div class="lock-icon-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div><span>Work in progress...</span></div>
                         <div class="card-header-row">
                             <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
                             <div class="card-meta-right">
@@ -815,7 +869,7 @@
                         <h3>Go</h3>
                         <p>Construct high-performance microservices with built-in goroutines and channels.</p>
                     </a>
-                    <a href="zig_intro.html" class="card" data-title="zig programming systems language">
+                    <a href="javascript:void(0)" class="card card-locked" data-title="zig programming systems language" aria-disabled="true" tabindex="-1" onclick="return false;"><div class="lock-overlay"><div class="lock-icon-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div><span>Work in progress...</span></div>
                         <div class="card-header-row">
                             <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg></div>
                             <div class="card-meta-right">
@@ -826,7 +880,7 @@
                         <h3>Zig</h3>
                         <p>Explore robust systems programming as a modern alternative to C with manual memory control.</p>
                     </a>
-                    <a href="assembly_intro.html" class="card" data-title="assembly hardware machine code instructions">
+                    <a href="javascript:void(0)" class="card card-locked" data-title="assembly hardware machine code instructions" aria-disabled="true" tabindex="-1" onclick="return false;"><div class="lock-overlay"><div class="lock-icon-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div><span>Work in progress...</span></div>
                         <div class="card-header-row">
                             <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"/><rect x="9" y="9" width="6" height="6"/></svg></div>
                             <div class="card-meta-right">
@@ -844,7 +898,7 @@
             <div id="general" class="category-container">
                 <h2 class="category-title">💡 General Purpose & Enterprise</h2>
                 <div class="card-grid">
-                    <a href="python_intro.html" class="card" data-title="python ai data science automation">
+                    <a href="javascript:void(0)" class="card card-locked" data-title="python ai data science automation" aria-disabled="true" tabindex="-1" onclick="return false;"><div class="lock-overlay"><div class="lock-icon-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div><span>Work in progress...</span></div>
                         <div class="card-header-row">
                             <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
                             <div class="card-meta-right">
@@ -855,7 +909,7 @@
                         <h3>Python</h3>
                         <p>Leverage clean syntax for data science, automation scripts, and application backends.</p>
                     </a>
-                    <a href="java_intro.html" class="card" data-title="java enterprise oop jvm">
+                    <a href="javascript:void(0)" class="card card-locked" data-title="java enterprise oop jvm" aria-disabled="true" tabindex="-1" onclick="return false;"><div class="lock-overlay"><div class="lock-icon-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div><span>Work in progress...</span></div>
                         <div class="card-header-row">
                             <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 8h1a4 4 0 0 1 0 8h-1"></path><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path><line x1="6" y1="1" x2="6" y2="4"></line><line x1="10" y1="1" x2="10" y2="4"></line><line x1="14" y1="1" x2="14" y2="4"></line></svg></div>
                             <div class="card-meta-right">
@@ -866,7 +920,7 @@
                         <h3>Java</h3>
                         <p>Develop secure, cross-platform enterprise applications on the Java Virtual Machine.</p>
                     </a>
-                    <a href="csharp_intro.html" class="card" data-title="c# dotnet unity game dev">
+                    <a href="javascript:void(0)" class="card card-locked" data-title="c# dotnet unity game dev" aria-disabled="true" tabindex="-1" onclick="return false;"><div class="lock-overlay"><div class="lock-icon-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div><span>Work in progress...</span></div>
                         <div class="card-header-row">
                             <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg></div>
                             <div class="card-meta-right">
@@ -877,7 +931,7 @@
                         <h3>C#</h3>
                         <p>Build desktop apps, enterprise web services, and robust backend architectures.</p>
                     </a>
-                    <a href="kotlin_intro.html" class="card" data-title="kotlin android mobile modern">
+                    <a href="javascript:void(0)" class="card card-locked" data-title="kotlin android mobile modern" aria-disabled="true" tabindex="-1" onclick="return false;"><div class="lock-overlay"><div class="lock-icon-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div><span>Work in progress...</span></div>
                         <div class="card-header-row">
                             <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg></div>
                             <div class="card-meta-right">
@@ -888,7 +942,7 @@
                         <h3>Kotlin</h3>
                         <p>Create modern, concise Android applications fully interoperable with Java runtime.</p>
                     </a>
-                    <a href="swift_intro.html" class="card" data-title="swift ios mac apple mobile">
+                    <a href="javascript:void(0)" class="card card-locked" data-title="swift ios mac apple mobile" aria-disabled="true" tabindex="-1" onclick="return false;"><div class="lock-overlay"><div class="lock-icon-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div><span>Work in progress...</span></div>
                         <div class="card-header-row">
                             <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 20.94c1.5 0 2.75 1.06 4 1.06 3 0 6-8 6-12.22A4.91 4.91 0 0 0 17 5c-2.22 0-4 1.44-5 1.44S9.22 5 7 5a4.91 4.91 0 0 0-5 4.78C2 14 5 22 8 22c1.25 0 2.5-1.06 4-1.06z"/><path d="M12 5.5a2.5 2.5 0 0 0 2.5-2.5"/></svg></div>
                             <div class="card-meta-right">
@@ -899,7 +953,7 @@
                         <h3>Swift</h3>
                         <p>Build elegant apps for iPhones, iPads, and Macs using powerful modern paradigms.</p>
                     </a>
-                    <a href="scala_intro.html" class="card" data-title="scala functional programming jvm">
+                    <a href="javascript:void(0)" class="card card-locked" data-title="scala functional programming jvm" aria-disabled="true" tabindex="-1" onclick="return false;"><div class="lock-overlay"><div class="lock-icon-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div><span>Work in progress...</span></div>
                         <div class="card-header-row">
                             <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg></div>
                             <div class="card-meta-right">
@@ -917,7 +971,7 @@
             <div id="scripting" class="category-container">
                 <h2 class="category-title">📊 Scripting, Data & Utilities</h2>
                 <div class="card-grid">
-                    <a href="sql_intro.html" class="card" data-title="sql database queries postgresql mysql">
+                    <a href="javascript:void(0)" class="card card-locked" data-title="sql database queries postgresql mysql" aria-disabled="true" tabindex="-1" onclick="return false;"><div class="lock-overlay"><div class="lock-icon-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div><span>Work in progress...</span></div>
                         <div class="card-header-row">
                             <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg></div>
                             <div class="card-meta-right">
@@ -928,7 +982,7 @@
                         <h3>SQL</h3>
                         <p>Design relational databases, write complex joins, and manage queries efficiently.</p>
                     </a>
-                    <a href="ruby_intro.html" class="card" data-title="ruby rails web developer friendly">
+                    <a href="javascript:void(0)" class="card card-locked" data-title="ruby rails web developer friendly" aria-disabled="true" tabindex="-1" onclick="return false;"><div class="lock-overlay"><div class="lock-icon-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div><span>Work in progress...</span></div>
                         <div class="card-header-row">
                             <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="6 3 18 3 22 9 12 21 2 9 6 3"/></svg></div>
                             <div class="card-meta-right">
@@ -939,7 +993,7 @@
                         <h3>Ruby</h3>
                         <p>Enjoy developer-friendly syntax optimized for productivity and rapid prototyping.</p>
                     </a>
-                    <a href="dart_intro.html" class="card" data-title="dart flutter cross platform mobile">
+                    <a href="javascript:void(0)" class="card card-locked" data-title="dart flutter cross platform mobile" aria-disabled="true" tabindex="-1" onclick="return false;"><div class="lock-overlay"><div class="lock-icon-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div><span>Work in progress...</span></div>
                         <div class="card-header-row">
                             <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/></svg></div>
                             <div class="card-meta-right">
@@ -950,7 +1004,7 @@
                         <h3>Dart</h3>
                         <p>Build multi-platform applications for mobile and web with Flutter.</p>
                     </a>
-                    <a href="bash_intro.html" class="card" data-title="bash shell scripting linux terminal">
+                    <a href="javascript:void(0)" class="card card-locked" data-title="bash shell scripting linux terminal" aria-disabled="true" tabindex="-1" onclick="return false;"><div class="lock-overlay"><div class="lock-icon-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div><span>Work in progress...</span></div>
                         <div class="card-header-row">
                             <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg></div>
                             <div class="card-meta-right">
@@ -961,7 +1015,7 @@
                         <h3>Bash</h3>
                         <p>Automate developer workflows, manage servers, and write powerful Linux shell scripts.</p>
                     </a>
-                    <a href="lua_intro.html" class="card" data-title="lua scripting lightweight embedding">
+                    <a href="javascript:void(0)" class="card card-locked" data-title="lua scripting lightweight embedding" aria-disabled="true" tabindex="-1" onclick="return false;"><div class="lock-overlay"><div class="lock-icon-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div><span>Work in progress...</span></div>
                         <div class="card-header-row">
                             <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg></div>
                             <div class="card-meta-right">
@@ -972,7 +1026,7 @@
                         <h3>Lua</h3>
                         <p>Integrate ultra-lightweight scripting into game engines and hardware devices.</p>
                     </a>
-                    <a href="r_intro.html" class="card" data-title="r statistics data analysis visualization">
+                    <a href="javascript:void(0)" class="card card-locked" data-title="r statistics data analysis visualization" aria-disabled="true" tabindex="-1" onclick="return false;"><div class="lock-overlay"><div class="lock-icon-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div><span>Work in progress...</span></div>
                         <div class="card-header-row">
                             <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div>
                             <div class="card-meta-right">
@@ -990,7 +1044,7 @@
             <div id="gamedev" class="category-container">
                 <h2 class="category-title">🎮 Game Engines & 3D Art</h2>
                 <div class="card-grid">
-                    <a href="unity_intro.html" class="card" data-title="unity game engine c# scripting gamedev">
+                    <a href="javascript:void(0)" class="card card-locked" data-title="unity game engine c# scripting gamedev" aria-disabled="true" tabindex="-1" onclick="return false;"><div class="lock-overlay"><div class="lock-icon-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div><span>Work in progress...</span></div>
                         <div class="card-header-row">
                             <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 12h4m-2-2v4"/></svg></div>
                             <div class="card-meta-right">
@@ -1001,7 +1055,7 @@
                         <h3>Unity & C#</h3>
                         <p>Develop 2D and 3D games using the Unity game engine paired with powerful C# scripting scripts.</p>
                     </a>
-                    <a href="godot_intro.html" class="card" data-title="godot game engine gdscript c# 2d 3d">
+                    <a href="javascript:void(0)" class="card card-locked" data-title="godot game engine gdscript c# 2d 3d" aria-disabled="true" tabindex="-1" onclick="return false;"><div class="lock-overlay"><div class="lock-icon-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div><span>Work in progress...</span></div>
                         <div class="card-header-row">
                             <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="9"/><path d="M9 10h.01M15 10h.01M9.5 15a3.5 3.5 0 0 0 5 0"/></svg></div>
                             <div class="card-meta-right">
@@ -1012,7 +1066,7 @@
                         <h3>Godot Engine</h3>
                         <p>Master node-based scene architecture, GDScript, and C# integrations for fast game creation.</p>
                     </a>
-                    <a href="blender_intro.html" class="card" data-title="blender 3d modeling animation rigging sculpting">
+                    <a href="javascript:void(0)" class="card card-locked" data-title="blender 3d modeling animation rigging sculpting" aria-disabled="true" tabindex="-1" onclick="return false;"><div class="lock-overlay"><div class="lock-icon-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div><span>Work in progress...</span></div>
                         <div class="card-header-row">
                             <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg></div>
                             <div class="card-meta-right">
@@ -1030,7 +1084,7 @@
             <div id="core-tracks" class="category-container">
                 <h2 class="category-title">🔥 Advanced Tech Tracks & Engineering</h2>
                 <div class="card-grid">
-                    <a href="ai_intro.html" class="card" data-title="artificial intelligence machine learning ai model neural networks">
+                    <a href="javascript:void(0)" class="card card-locked" data-title="artificial intelligence machine learning ai model neural networks" aria-disabled="true" tabindex="-1" onclick="return false;"><div class="lock-overlay"><div class="lock-icon-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div><span>Work in progress...</span></div>
                         <div class="card-header-row">
                             <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2a10 10 0 0 1 7.54 16.6l-3.54-3.54a4 4 0 0 0-5.66 0l-3.54 3.54A10 10 0 0 1 12 2Z"/></svg></div>
                             <div class="card-meta-right">
@@ -1041,7 +1095,7 @@
                         <h3>Build an AI Model</h3>
                         <p>Train neural networks, work with datasets, fine-tune LLMs, and master core machine learning pipelines.</p>
                     </a>
-                    <a href="cyber_intro.html" class="card" data-title="cybersecurity hacking defense encryption security">
+                    <a href="javascript:void(0)" class="card card-locked" data-title="cybersecurity hacking defense encryption security" aria-disabled="true" tabindex="-1" onclick="return false;"><div class="lock-overlay"><div class="lock-icon-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div><span>Work in progress...</span></div>
                         <div class="card-header-row">
                             <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
                             <div class="card-meta-right">
@@ -1052,7 +1106,7 @@
                         <h3>Cybersecurity</h3>
                         <p>Learn ethical hacking, penetration testing, cryptography protocols, and vulnerability analysis.</p>
                     </a>
-                    <a href="cloud_intro.html" class="card" data-title="cloud computing aws docker kubernetes devops">
+                    <a href="javascript:void(0)" class="card card-locked" data-title="cloud computing aws docker kubernetes devops" aria-disabled="true" tabindex="-1" onclick="return false;"><div class="lock-overlay"><div class="lock-icon-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div><span>Work in progress...</span></div>
                         <div class="card-header-row">
                             <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a3 3 0 0 0 0-6Z"/></svg></div>
                             <div class="card-meta-right">
@@ -1063,7 +1117,7 @@
                         <h3>Cloud Computing</h3>
                         <p>Deploy applications with Docker, Kubernetes, serverless architectures, and major cloud platforms.</p>
                     </a>
-                    <a href="cs_intro.html" class="card" data-title="computer science algorithms data structures theory">
+                    <a href="javascript:void(0)" class="card card-locked" data-title="computer science algorithms data structures theory" aria-disabled="true" tabindex="-1" onclick="return false;"><div class="lock-overlay"><div class="lock-icon-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div><span>Work in progress...</span></div>
                         <div class="card-header-row">
                             <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg></div>
                             <div class="card-meta-right">
@@ -1074,7 +1128,7 @@
                         <h3>Computer Science</h3>
                         <p>Master algorithms, data structures, complexity analysis, and underlying computational theory.</p>
                     </a>
-                    <a href="git_intro.html" class="card" data-title="git version control github workflow collaboration">
+                    <a href="javascript:void(0)" class="card card-locked" data-title="git version control github workflow collaboration" aria-disabled="true" tabindex="-1" onclick="return false;"><div class="lock-overlay"><div class="lock-icon-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div><span>Work in progress...</span></div>
                         <div class="card-header-row">
                             <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><path d="M6 21V9a9 9 0 0 0 9 9"/></svg></div>
                             <div class="card-meta-right">
@@ -1085,7 +1139,7 @@
                         <h3>Git & Version Control</h3>
                         <p>Master branching strategies, conflict resolution, rebase workflows, and collaborative codebase management.</p>
                     </a>
-                    <a href="ui_intro.html" class="card" data-title="ui ux designfigra frontend user experience">
+                    <a href="javascript:void(0)" class="card card-locked" data-title="ui ux designfigra frontend user experience" aria-disabled="true" tabindex="-1" onclick="return false;"><div class="lock-overlay"><div class="lock-icon-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div><span>Work in progress...</span></div>
                         <div class="card-header-row">
                             <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/></svg></div>
                             <div class="card-meta-right">
