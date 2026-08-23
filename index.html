@@ -409,6 +409,32 @@
             border-color: rgba(59, 130, 246, 0.3); font-weight: 600;
         }
 
+        .sidebar-support-link {
+            position: fixed;
+            left: 1rem;
+            bottom: 1rem;
+            z-index: 200;
+            display: flex; align-items: center; gap: 0.65rem;
+            padding: 0.75rem 1.1rem;
+            color: var(--text-muted);
+            border-radius: 9px; font-size: 0.8rem; font-weight: 700;
+            letter-spacing: 0.04em; text-transform: uppercase;
+            border: 1px solid var(--border-color);
+            background: var(--card-bg, var(--bg-tertiary));
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+            transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+        }
+
+        .sidebar-support-link svg {
+            width: 16px; height: 16px; flex-shrink: 0;
+        }
+
+        .sidebar-support-link:hover {
+            background: var(--primary-glow); color: var(--primary-color);
+            border-color: rgba(59, 130, 246, 0.3);
+            transform: translateY(-2px);
+        }
+
         /* =========================================
            CONTENT AREA & GRIDS
            ========================================= */
@@ -655,6 +681,11 @@
                 <a href="#core-tracks" class="nav-link"><span>Advanced Tech Tracks</span></a>
             </div>
         </aside>
+
+        <a href="support.html" class="sidebar-support-link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            <span>Support</span>
+        </a>
 
         <!-- CONTENT AREA -->
         <main class="content-area">

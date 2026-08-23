@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Support — Programming Handbook</title>
+
+    <!-- Supabase Client to sync theme, if a session exists -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        /* =========================================
+           DYNAMIC THEME TOKENS (Synced with User)
+           ========================================= */
+        :root[data-theme="light"] {
+            --bg-color: #f8fafc;
+            --text-main: #090d16;
+            --text-muted: #64748b;
+            --primary-color: #2563eb;
+            --primary-glow: rgba(37, 99, 235, 0.12);
+            --border-color: #e2e8f0;
+            --card-bg: #ffffff;
+            --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.08);
+            --grid-line: rgba(0, 0, 0, 0.05);
+        }
+
+        :root[data-theme="dark"] {
+            --bg-color: #000000;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --primary-color: #3b82f6;
+            --primary-glow: rgba(59, 130, 246, 0.25);
+            --border-color: #121216;
+            --card-bg: #050508;
+            --shadow-lg: 0 20px 40px -10px rgba(0, 0, 0, 0.95);
+            --grid-line: rgba(59, 130, 246, 0.09);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background-image: linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+                              linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+            background-size: 48px 48px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .support-card {
+            position: relative;
+            z-index: 1;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 18px;
+            padding: 3rem 2.5rem;
+            max-width: 480px;
+            width: 100%;
+            text-align: center;
+            box-shadow: var(--shadow-lg);
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+
+        .support-icon {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 1.5rem auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 16px;
+            background: var(--primary-glow);
+            color: var(--primary-color);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+        }
+
+        .support-icon svg {
+            width: 28px;
+            height: 28px;
+            stroke-width: 2.2;
+        }
+
+        h1 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+            letter-spacing: -0.02em;
+        }
+
+        p {
+            color: var(--text-muted);
+            font-size: 0.93rem;
+            line-height: 1.6;
+            margin-bottom: 1.75rem;
+        }
+
+        .contact-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
+            background: var(--primary-glow);
+            color: var(--primary-color);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            padding: 0.85rem 1.4rem;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+
+        .contact-pill:hover {
+            background: var(--primary-color);
+            color: #ffffff;
+            transform: translateY(-2px);
+        }
+
+        .contact-pill svg {
+            width: 18px;
+            height: 18px;
+            flex-shrink: 0;
+        }
+
+        .back-link {
+            display: block;
+            margin-top: 2rem;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        .back-link:hover {
+            color: var(--primary-color);
+        }
+    </style>
+
+    <script>
+        // Sync theme with whatever the user last chose, if they're signed in.
+        // Defaults to light mode otherwise -- no sign-in required to view this page.
+        const SUPABASE_URL = 'https://uxhkeswhlkktycbjitnq.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV4aGtlc3dobGtrdHljYmppdG5xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODczMTQ1MjAsImV4cCI6MjEwMjg5MDUyMH0.z5BA_7NFc1PZ5W-L55PFEzahm56J5ar1jCYeMacOnyU';
+
+        async function applySupportTheme() {
+            try {
+                const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                const { data: { session } } = await client.auth.getSession();
+
+                if (!session || !session.user) {
+                    document.documentElement.setAttribute('data-theme', 'light');
+                    return;
+                }
+
+                const savedTheme = localStorage.getItem(`theme_${session.user.id}`) || 'dark';
+                document.documentElement.setAttribute('data-theme', savedTheme);
+            } catch (e) {
+                document.documentElement.setAttribute('data-theme', 'light');
+            }
+        }
+        applySupportTheme();
+    </script>
+</head>
+<body>
+
+    <div class="support-card">
+        <div class="support-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        </div>
+        <h1>Need Help?</h1>
+        <p>No account or sign-in required. If you're running into an issue, have feedback, or just have a question about the Programming Handbook, reach out directly and we'll get back to you.</p>
+        <a class="contact-pill" href="mailto:phantomicsupport@gmail.com">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            phantomicsupport@gmail.com
+        </a>
+        <a href="index.html" class="back-link">&larr; Back to Handbook</a>
+    </div>
+
+</body>
+</html>
