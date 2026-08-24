@@ -1213,6 +1213,7 @@
             // common profanity
             'fuck', 'shit', 'bitch', 'bastard', 'cunt', 'dick', 'piss',
             'whore', 'slut', 'douche', 'twat', 'wank', 'jackass', 'asshole',
+            'motherfucker', 'goddamn', 'shithead', 'dumbass', 'dipshit',
             // slurs (racial / ethnic / homophobic / ableist / etc.)
             'nigger', 'nigga', 'fag', 'faggot', 'dyke', 'chink', 'gook',
             'spic', 'wetback', 'kike', 'tranny', 'retard', 'coon', 'beaner',
@@ -1225,10 +1226,10 @@
             // check and falls through to the slower, uglier DB-error path.
             'cum', 'cumming', 'jizz', 'semen',
             'blowjob', 'handjob', 'deepthroat', 'rimjob', 'fellatio', 'cunnilingus',
-            'anal', 'penis', 'vagina', 'clit', 'pussy',
-            'boob', 'boobs', 'tit', 'tits', 'nipple',
-            'boner', 'erection', 'naked', 'nude',
-            'hentai', 'porn', 'porno', 'sex',
+            'anal', 'penis', 'vagina', 'clit', 'clitoris', 'pussy', 'dildo',
+            'boob', 'boobs', 'tit', 'tits', 'nipple', 'testicle', 'scrotum',
+            'boner', 'erection', 'ejaculate', 'orgasm', 'masturbate',
+            'naked', 'nude', 'hentai', 'porn', 'porno', 'sex', 'bukkake', 'gangbang',
         ];
 
         // Common legitimate words that would otherwise false-positive
@@ -1253,7 +1254,7 @@
             return str
                 .toLowerCase()
                 .replace(/0/g, 'o')
-                .replace(/[1!|]/g, 'i')
+                .replace(/[1!|lI]/g, 'i')     // 'l' (lowercase L) and 'I' look like 'i' — a common filter dodge
                 .replace(/3/g, 'e')
                 .replace(/[4@]/g, 'a')
                 .replace(/[5$]/g, 's')
@@ -1266,7 +1267,10 @@
             PROFANITY_ALLOWLIST.forEach(safe => {
                 normalized = normalized.split(normalizeForProfanityCheck(safe)).join('');
             });
-            return BANNED_WORDS.some(word => normalized.includes(word));
+            // Normalize the banned words too — otherwise a literal 'l' in a
+            // word like "blowjob" would no longer match after the input's
+            // 'l' gets folded into 'i' above.
+            return BANNED_WORDS.some(word => normalized.includes(normalizeForProfanityCheck(word)));
         }
 
 

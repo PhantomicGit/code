@@ -667,15 +667,15 @@
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-course-tag">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
-                Track name
+                Boilerplates
             </div>
             <div class="sidebar-menu">
                 <div class="nav-section-label">On This Page</div>
                 <!-- One <a> per <section> below. href must match the section's id.
                      Copy a line and edit the number/text/href to add more. -->
-                <a href="#section-1" class="nav-link active"><span class="nav-link-num mono">01</span><span>Section title</span></a>
-                <a href="#section-2" class="nav-link"><span class="nav-link-num mono">02</span><span>Section title</span></a>
-                <a href="#section-3" class="nav-link"><span class="nav-link-num mono">03</span><span>Section title</span></a>
+                <a href="#section-1" class="nav-link active"><span class="nav-link-num mono">01</span><span>The HTML Boilerplate</span></a>
+                <a href="#section-2" class="nav-link"><span class="nav-link-num mono">02</span><span>Boilerplate Elements</span></a>
+                <a href="#section-3" class="nav-link"><span class="nav-link-num mono">03</span><span>Getting Comfortable</span></a>
             </div>
 
             <div class="sidebar-progress">
@@ -707,20 +707,20 @@
                     <!-- 1. HERO — edit the eyebrow badge, the <h1> title,
                          the subtitle, and the 3 pills below. -->
                     <div class="lesson-eyebrow">Page 1</div>
-                    <h1 class="lesson-title">Your page title</h1>
-                    <p class="lesson-subtitle">Write a one- or two-sentence summary of this page here.</p>
+                    <h1 class="lesson-title">What is HTML?</h1>
+                    <p class="lesson-subtitle"><strong>HTML (HyperText Markup Language)</strong> is the standard language used to <strong>structure content on webpages</strong>. It uses <strong>tags</strong> to define elements such as <strong>headings, paragraphs, images, links, and buttons</strong>.</p>
                     <div class="lesson-meta-row">
                         <div class="meta-pill">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                            — min read
+                            6 min read
                         </div>
                         <div class="meta-pill">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20v-6M6 20V10M18 20V4"/></svg>
-                            Difficulty
+                            Difficulty: Beginner
                         </div>
                         <div class="meta-pill">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-                            Prerequisites
+                            Prerequisites: None
                         </div>
                     </div>
                 </div>
@@ -737,8 +737,34 @@
                      paragraphs.
                      ============================================================ -->
                 <section class="lesson-section" id="section-1">
-                    <h2><span class="step-dot">01</span>Section title</h2>
-                    <p>Write your paragraph here.</p>
+                    <h2><span class="step-dot">01</span>The HTML Boilerplate</h2>
+                    <p>Every HTML document requires a <strong>boilerplate structure</strong>. Content goes inside the <strong>&lt;body&gt;</strong> tag, while instructions for the browser go inside the <strong>&lt;head&gt;</strong> tag.</p>
+                    <p>You can also create a <strong>boilerplate</strong> using an <strong>Emmet abbreviation</strong>. You have to type <strong>"!"</strong> in <strong>Visual Studio Code</strong> and press <strong>Enter</strong>. This will automatically generate a <strong>boilerplate structure</strong> for you.</p>
+                    <div class="code-block">
+                        <div class="code-block-header">
+                            <div style="display:flex; align-items:center; gap:0.7rem;">
+                                <div class="code-block-dots"><span></span><span></span><span></span></div>
+                                <div class="code-block-label">boilerplate.html</div>
+                            </div>
+                            <button class="copy-btn" type="button" data-copy-target="code-1">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                                <span>Copy</span>
+                            </button>
+                        </div>
+                        <pre id="code-1"><span class="cm-tag">&lt;!DOCTYPE html&gt;</span>
+<span class="cm-tag">&lt;html</span> <span class="cm-attr">lang</span><span class="cm-text">=</span><span class="cm-string">"en"</span><span class="cm-tag">&gt;</span>
+<span class="cm-tag">&lt;head&gt;</span>
+    <span class="cm-tag">&lt;meta</span> <span class="cm-attr">charset</span><span class="cm-text">=</span><span class="cm-string">"UTF-8"</span><span class="cm-tag">&gt;</span>
+    <span class="cm-tag">&lt;meta</span> <span class="cm-attr">name</span><span class="cm-text">=</span><span class="cm-string">"viewport"</span> <span class="cm-attr">content</span><span class="cm-text">=</span><span class="cm-string">"width=device-width, initial-scale=1.0"</span><span class="cm-tag">&gt;</span>
+    <span class="cm-tag">&lt;title&gt;</span><span class="cm-text">Document</span><span class="cm-tag">&lt;/title&gt;</span>
+<span class="cm-tag">&lt;/head&gt;</span>
+<span class="cm-tag">&lt;body&gt;</span>
+
+<span class="cm-tag">&lt;/body&gt;</span>
+<span class="cm-tag">&lt;/html&gt;</span></pre>
+                    </div>
+                    <p>At first, this <strong>boilerplate might look like a lot of code</strong>, but don't worry! You don't need to memorize everything or focus on how the code looks. The important thing is to understand <strong>what each part does</strong> and why it is there. As you learn more HTML, this structure will become <strong>familiar and easy to understand</strong>.</p>
+                    <p>Now let's break down the <strong>most important parts</strong> of the HTML boilerplate. You don't need to memorize everything right away — just understand <strong>what each main element is used for</strong>. These elements form the basic structure of almost every HTML page, and you'll use them constantly as you build websites.</p>
                 </section>
 
                 <!-- ============================================================
@@ -766,20 +792,82 @@
                      whole <div class="code-block">...</div> below.
                      ============================================================ -->
                 <section class="lesson-section" id="section-2">
-                    <h2><span class="step-dot">02</span>Section title</h2>
-                    <p>Write your paragraph here.</p>
+                    <h2><span class="step-dot">02</span>Boilerplate Elements</h2>
+                    <p>The <strong>&lt;!DOCTYPE html&gt;</strong> declaration tells the browser that the page is using <strong>HTML5</strong>. It should be placed at the <strong>very beginning</strong> of every HTML document.</p>
                     <div class="code-block">
                         <div class="code-block-header">
                             <div style="display:flex; align-items:center; gap:0.7rem;">
                                 <div class="code-block-dots"><span></span><span></span><span></span></div>
-                                <div class="code-block-label">example.html</div>
+                                <div class="code-block-label">doctype.html</div>
                             </div>
                             <button class="copy-btn" type="button" data-copy-target="code-2">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
                                 <span>Copy</span>
                             </button>
                         </div>
-                        <pre id="code-2"><span class="cm-comment">&lt;!-- Replace this with your own code --&gt;</span></pre>
+                        <pre id="code-2"><span class="cm-tag">&lt;!DOCTYPE html&gt;</span></pre>
+                    </div>
+                    <p>The <strong>&lt;html&gt;</strong> element is the <strong>main container</strong> for the entire webpage. Everything in your HTML document, including the <strong>&lt;head&gt;</strong> and <strong>&lt;body&gt;</strong>, goes inside it.</p>
+                    <div class="code-block">
+                        <div class="code-block-header">
+                            <div style="display:flex; align-items:center; gap:0.7rem;">
+                                <div class="code-block-dots"><span></span><span></span><span></span></div>
+                                <div class="code-block-label">htmlelement.html</div>
+                            </div>
+                            <button class="copy-btn" type="button" data-copy-target="code-3">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                                <span>Copy</span>
+                            </button>
+                        </div>
+                        <pre id="code-3"><span class="cm-tag">&lt;html</span> <span class="cm-attr">lang</span><span class="cm-text">=</span><span class="cm-string">"en"</span><span class="cm-tag">&gt;</span>
+
+<span class="cm-tag">&lt;/html&gt;</span></pre>
+                    </div>
+                    <p>The <strong>&lt;head&gt;</strong> contains information and settings about your webpage that are <strong>not directly displayed</strong> as page content. This is where things like the <strong>&lt;title&gt;</strong>, character encoding, and other important information are placed.</p>
+                    <div class="code-block">
+                        <div class="code-block-header">
+                            <div style="display:flex; align-items:center; gap:0.7rem;">
+                                <div class="code-block-dots"><span></span><span></span><span></span></div>
+                                <div class="code-block-label">htmlhead.html</div>
+                            </div>
+                            <button class="copy-btn" type="button" data-copy-target="code-4">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                                <span>Copy</span>
+                            </button>
+                        </div>
+                        <pre id="code-4"><span class="cm-tag">&lt;head&gt;</span>
+
+<span class="cm-tag">&lt;/head&gt;</span></pre>
+                    </div>
+                    <p>The <strong>&lt;body&gt;</strong> contains the <strong>visible content</strong> of your webpage. Headings, paragraphs, images, links, buttons, and most of the things users interact with are placed inside the <strong>&lt;body&gt;</strong>.</p>
+                    <div class="code-block">
+                        <div class="code-block-header">
+                            <div style="display:flex; align-items:center; gap:0.7rem;">
+                                <div class="code-block-dots"><span></span><span></span><span></span></div>
+                                <div class="code-block-label">htmlbody.html</div>
+                            </div>
+                            <button class="copy-btn" type="button" data-copy-target="code-5">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                                <span>Copy</span>
+                            </button>
+                    </div>
+                        <pre id="code-5"><span class="cm-tag">&lt;body&gt;</span>
+    <span class="cm-text">Your webpage content goes here</span>
+<span class="cm-tag">&lt;/body&gt;</span></pre>
+                    </div>
+                    <p>The <strong>&lt;title&gt;</strong> element defines the <strong>name of your webpage</strong>. It appears in the <strong>browser tab</strong> and is placed inside the <strong>&lt;head&gt;</strong> section of your HTML document.</p>
+                                        <div class="code-block">
+                        <div class="code-block-header">
+                            <div style="display:flex; align-items:center; gap:0.7rem;">
+                                <div class="code-block-dots"><span></span><span></span><span></span></div>
+                                <div class="code-block-label">htmltitle.html</div>
+                            </div>
+                            <button class="copy-btn" type="button" data-copy-target="code-6">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                                <span>Copy</span>
+                            </button>
+                    </div>
+<pre id="code-6"><span class="cm-tag">&lt;title&gt;</span><span class="cm-text">My Website</span><span class="cm-tag">&lt;/title&gt;</span></pre>
                     </div>
                 </section>
 
@@ -795,12 +883,16 @@
                      <ul>...</ul> below and just use <p> paragraphs instead.
                      ============================================================ -->
                 <section class="lesson-section" id="section-3">
-                    <h2><span class="step-dot">03</span>Section title</h2>
-                    <p>Write your paragraph here.</p>
+                    <h2><span class="step-dot">03</span>Getting Comfortable</h2>
+                    <p>The boilerplate may seem <strong>complicated at first</strong>, but once you understand its purpose, it becomes much easier to work with. You will use this <strong>basic structure in almost every HTML project</strong>, and you will quickly start recognizing its parts without having to think about them. There are also a few important things to remember that will make <strong>working with the boilerplate easier</strong> as you continue learning HTML.</p>
                     <ul>
-                        <li>First point.</li>
-                        <li>Second point.</li>
-                        <li>Third point.</li>
+                        <li>You don't need to <strong>memorize the entire boilerplate</strong> — VS Code can generate it for you using Emmet.</li>
+                        <li>The boilerplate gives your webpage a <strong>consistent starting structure</strong> so the browser knows how to interpret your document.</li>
+                        <li>As you learn more HTML, you'll <strong>add your own elements inside the structure</strong> instead of changing the boilerplate itself.</li>
+                        <li>The <strong>&lt;head&gt;</strong> and <strong>&lt;body&gt;</strong> have different purposes, so make sure your content goes in the correct place.</li>
+                        <li>The <strong>&lt;title&gt;</strong> belongs inside the <strong>&lt;head&gt;</strong>, while the content users see belongs inside the <strong>&lt;body&gt;</strong>.</li>
+                        <li>The <strong>&lt;html&gt;</strong> element wraps around the entire webpage and should contain both the <strong>&lt;head&gt;</strong> and <strong>&lt;body&gt;</strong>.</li>
+                        <li>You will <strong>reuse this structure again and again</strong>, so understanding it now will make future HTML lessons much easier.</li>
                     </ul>
                 </section>
 
@@ -880,9 +972,9 @@
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
                         Lesson Info
                     </div>
-                    <div class="rail-stat-row"><span class="rail-stat-label">Difficulty</span><span class="rail-stat-value">—</span></div>
-                    <div class="rail-stat-row"><span class="rail-stat-label">Read time</span><span class="rail-stat-value">—</span></div>
-                    <div class="rail-stat-row"><span class="rail-stat-label">Track</span><span class="rail-stat-value">—</span></div>
+                    <div class="rail-stat-row"><span class="rail-stat-label">Difficulty</span><span class="rail-stat-value">Beginner</span></div>
+                    <div class="rail-stat-row"><span class="rail-stat-label">Read time</span><span class="rail-stat-value">Fast</span></div>
+                    <div class="rail-stat-row"><span class="rail-stat-label">Track</span><span class="rail-stat-value">Boilerplates</span></div>
                 </div>
             </aside>
 
