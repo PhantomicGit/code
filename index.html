@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Programming Handbook — Interactive Documentation</title>
+    <title>CodeGO - MAIN MENU</title>
     
     <!-- Supabase JavaScript Client Library -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -638,7 +638,7 @@
         <div class="nav-left">
             <a href="index.html" class="logo">
                 <div class="logo-badge"></div>
-                Programming Handbook
+                CodeGO
             </a>
         </div>
         
@@ -752,7 +752,7 @@
             <div id="web-dev" class="category-container">
                 <h2 class="category-title">🌐 Web Technologies</h2>
                 <div class="card-grid">
-                    <a href="html_intro.html" class="card" data-title="html markup semantic">
+                    <a href="htmlFolder/html_page1.html" class="card" data-title="html markup semantic">
                         <div class="card-header-row">
                             <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/></svg></div>
                             <div class="card-meta-right">
@@ -1186,7 +1186,7 @@
         // Accounts are username + password only. Signup goes through the
         // signup_with_username RPC (no mailer). Login still uses Supabase
         // sessions; a private mapping is used internally and never shown.
-        const FAKE_EMAIL_DOMAIN = 'users.programminghandbook.app';
+        const FAKE_EMAIL_DOMAIN = 'users.codego.app';
         const USERNAME_PATTERN = /^[a-zA-Z0-9_]{3,20}$/;
 
         function usernameToEmail(username) {
@@ -1208,10 +1208,10 @@
             if (lower.includes('permission denied') || lower.includes('row-level security')) {
                 return 'Could not create that account. Run supabase-setup.sql in the Supabase SQL Editor, then try again.';
             }
-            if (lower.includes('programminghandbook.app') || lower.includes('invalid email') || lower.includes('error sending') || lower.includes('unable to validate email')) {
+            if (lower.includes('codego.app') || lower.includes('invalid email') || lower.includes('error sending') || lower.includes('unable to validate email')) {
                 return 'Could not create that account. Run supabase-setup.sql in the Supabase SQL Editor, then try again.';
             }
-            return msg.replace(/[^\s]+@[^\s]+/g, 'username').replace(/users\.programminghandbook\.app/gi, 'username');
+            return msg.replace(/[^\s]+@[^\s]+/g, 'username').replace(/users\.codego\.app/gi, 'username');
         }
 
         const moonIcon = `<svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" fill="none"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
