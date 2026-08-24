@@ -1217,16 +1217,36 @@
             'nigger', 'nigga', 'fag', 'faggot', 'dyke', 'chink', 'gook',
             'spic', 'wetback', 'kike', 'tranny', 'retard', 'coon', 'beaner',
             'paki', 'raghead', 'towelhead',
+            // hate symbols / extremist figures
+            'nazi', 'hitler', 'adolf',
+            // sexual — keep this in sync with banned_words in supabase-setup.sql,
+            // this list and the database trigger must always match, or a word
+            // caught only by one of them slips past the instant client-side
+            // check and falls through to the slower, uglier DB-error path.
+            'cum', 'cumming', 'jizz', 'semen',
+            'blowjob', 'handjob', 'deepthroat', 'rimjob', 'fellatio', 'cunnilingus',
+            'anal', 'penis', 'vagina', 'clit', 'pussy',
+            'boob', 'boobs', 'tit', 'tits', 'nipple',
+            'boner', 'erection', 'naked', 'nude',
+            'hentai', 'porn', 'porno', 'sex',
         ];
 
         // Common legitimate words that would otherwise false-positive
         // because they *contain* a banned word — sorted longest-first
         // so e.g. "classroom" is stripped whole before "class" or "ass"
-        // ever gets a chance to match.
+        // ever gets a chance to match. Keep in sync with allowlist in
+        // supabase-setup.sql.
         const PROFANITY_ALLOWLIST = [
-            'assassinate', 'assistant', 'associate', 'classroom', 'password',
-            'assassin', 'scunthorpe', 'assist', 'assess', 'compass', 'cockpit',
-            'class', 'classic', 'grass', 'glass', 'brass', 'bass', 'pass',
+            'circumstances', 'accumulate', 'accumulated', 'constitution',
+            'assassinate', 'competition', 'scunthorpe', 'competitive',
+            'assistant', 'associate', 'classroom', 'substitute', 'institution',
+            'accumulation', 'circumstance', 'documentary',
+            'password', 'assassin', 'document', 'analysis', 'attitude',
+            'constitute', 'institute', 'entitled', 'unisex', 'middlesex',
+            'compass', 'cockpit', 'classic', 'titanium', 'sextant',
+            'assist', 'assess', 'analyze', 'analog', 'sexton', 'titan',
+            'class', 'grass', 'glass', 'brass', 'canal', 'banal', 'title',
+            'bass', 'pass', 'cant',
         ].sort((a, b) => b.length - a.length);
 
         function normalizeForProfanityCheck(str) {
@@ -1635,10 +1655,14 @@
                         return;
                     }
 
-                    if (msg.includes('not allowed')) {
+                    if (profileError.code === '23514' || msg.includes('not allowed')) {
                         // Caught by the profanity_filter trigger in supabase-setup.sql —
                         // the auth user was already created above, so sign back out
                         // rather than leaving them "logged in" with a rejected username.
+                        // Checking the Postgres error code (23514 = check_violation,
+                        // what the trigger raises) rather than only the message text
+                        // means this still matches even if the trigger's wording ever
+                        // changes.
                         await supabaseClient.auth.signOut();
                         showNotice('That username isn\'t allowed. Please choose something else.', true);
                         authSubmitBtn.disabled = false;
