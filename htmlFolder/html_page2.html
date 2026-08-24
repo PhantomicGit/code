@@ -231,6 +231,10 @@
         .sidebar-progress-fill {
             height: 100%; width: 20%; border-radius: 4px;
             background: linear-gradient(90deg, var(--primary-color), var(--accent-green));
+            transition: width 0.7s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.7s ease;
+        }
+        .sidebar-progress-fill.glowing {
+            box-shadow: 0 0 10px 1px var(--primary-color), 0 0 16px 3px var(--primary-glow);
         }
 
         .sidebar-support-link {
@@ -397,8 +401,23 @@
             padding: 0.7rem 1.1rem; border-bottom: 1px solid rgba(255,255,255,0.06);
         }
 
-        .code-block-dots { display: flex; gap: 6px; }
-        .code-block-dots span { width: 10px; height: 10px; border-radius: 50%; background: rgba(255,255,255,0.15); }
+        .code-block-dots { display: flex; gap: 6px; cursor: pointer; }
+        .code-block-dots span {
+            width: 10px; height: 10px; border-radius: 50%;
+            transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+        }
+        .code-block-dots span:nth-child(1) { background: #ff5f56; }
+        .code-block-dots span:nth-child(2) { background: #ffbd2e; }
+        .code-block-dots span:nth-child(3) { background: #27c93f; }
+        .code-block-dots:hover span { transform: scale(1.15); }
+        .code-block-dots:hover span:nth-child(1) { box-shadow: 0 0 8px rgba(255,95,86,0.7); }
+        .code-block-dots:hover span:nth-child(2) { box-shadow: 0 0 8px rgba(255,189,46,0.7); }
+        .code-block-dots:hover span:nth-child(3) { box-shadow: 0 0 8px rgba(39,201,63,0.7); }
+
+        .code-block.collapsed pre {
+            max-height: 0 !important; opacity: 0; padding-top: 0 !important; padding-bottom: 0 !important;
+        }
+        .code-block.collapsed .code-block-header { border-bottom-color: transparent; }
 
         .code-block-label {
             font-family: 'JetBrains Mono', monospace;
@@ -419,9 +438,11 @@
         .copy-btn.copied { color: var(--accent-green); border-color: rgba(74, 222, 128, 0.3); }
 
         .code-block pre {
-            padding: 1.25rem 1.4rem; overflow-x: auto;
+            padding: 1.25rem 1.4rem; overflow-x: auto; overflow-y: hidden;
             font-family: 'JetBrains Mono', monospace;
             font-size: 0.85rem; line-height: 1.7; color: var(--code-text);
+            max-height: 600px;
+            transition: max-height 0.35s ease, opacity 0.25s ease, padding 0.35s ease;
         }
 
         .cm-tag { color: var(--tag-color); }
@@ -566,7 +587,7 @@
         }
         applyLessonTheme();
     </script>
-</head><body>
+</head><body data-page-num="2" data-page-total="26">
 
 
     <!--
@@ -626,7 +647,7 @@
             CodeGO
         </a>
         <div class="top-nav-right">
-            <div class="lesson-chip"><span class="dot"></span>Page 2 of —</div>
+            <div class="lesson-chip"><span class="dot"></span>Page <span class="js-page-num">2</span> of <span class="js-page-total">—</span></div>
             <a href="../index.html" class="back-link">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
                 Back to CodeGO
@@ -657,8 +678,8 @@
             </div>
 
             <div class="sidebar-progress">
-                <div class="sidebar-progress-label"><span>Course progress</span><span class="count mono">1 / 26</span></div>
-                <div class="sidebar-progress-track"><div class="sidebar-progress-fill"></div></div>
+                <div class="sidebar-progress-label"><span>Course progress</span><span class="count mono js-progress-count">1 / 26</span></div>
+                <div class="sidebar-progress-track"><div class="sidebar-progress-fill js-progress-fill"></div></div>
             </div>
         </aside>
 
@@ -871,6 +892,63 @@
 
 <script>
         /* =========================================
+           0. COURSE PROGRESS
+           Reads data-page-num / data-page-total off <body>
+           and fills in the lesson chip + sidebar progress bar.
+           To wire up a new page: just set those two attributes
+           on <body> — nothing else needs to change by hand.
+
+           Also gives the bar a bit of life on Previous/Next: right
+           before leaving the page we stash the current page number
+           in sessionStorage. The page that loads next reads that
+           back so it can animate the bar from the old value up to
+           the new one (instead of snapping straight to it) with a
+           brief glow while it moves.
+           ========================================= */
+        (function () {
+            const page = parseInt(document.body.getAttribute('data-page-num'), 10);
+            const total = parseInt(document.body.getAttribute('data-page-total'), 10);
+            if (!page || !total) return;
+
+            document.querySelectorAll('.js-page-num').forEach(el => el.textContent = page);
+            document.querySelectorAll('.js-page-total').forEach(el => el.textContent = total);
+            document.querySelectorAll('.js-progress-count').forEach(el => el.textContent = `${page} / ${total}`);
+
+            const targetPct = Math.min(100, Math.round((page / total) * 100));
+            const fills = document.querySelectorAll('.js-progress-fill');
+
+            let nav = null;
+            try { nav = JSON.parse(sessionStorage.getItem('codego_nav') || 'null'); } catch (e) {}
+            sessionStorage.removeItem('codego_nav');
+
+            if (nav && nav.fromPage && nav.fromPage !== page) {
+                const fromPct = Math.min(100, Math.round((nav.fromPage / total) * 100));
+                fills.forEach(el => { el.style.transition = 'none'; el.style.width = `${fromPct}%`; });
+                void document.body.offsetHeight; // force reflow before re-enabling the transition
+                requestAnimationFrame(() => {
+                    fills.forEach(el => {
+                        el.style.transition = '';
+                        el.style.width = `${targetPct}%`;
+                        el.classList.add('glowing');
+                    });
+                    setTimeout(() => {
+                        fills.forEach(el => el.classList.remove('glowing'));
+                    }, 700);
+                });
+            } else {
+                fills.forEach(el => { el.style.width = `${targetPct}%`; });
+            }
+
+            document.querySelectorAll('.footer-nav-card[href]').forEach(link => {
+                link.addEventListener('click', () => {
+                    try {
+                        sessionStorage.setItem('codego_nav', JSON.stringify({ fromPage: page }));
+                    } catch (e) {}
+                });
+            });
+        })();
+
+        /* =========================================
            1. COPY CODE BUTTON
            ========================================= */
         document.querySelectorAll('.copy-btn').forEach(btn => {
@@ -895,7 +973,23 @@
         });
 
         /* =========================================
-           2. SIDEBAR SCROLLSPY
+           2. CODE BLOCK DOTS — click to collapse/expand
+           ========================================= */
+        document.querySelectorAll('.code-block-dots').forEach(dots => {
+            const block = dots.closest('.code-block');
+            if (!block) return;
+            dots.setAttribute('role', 'button');
+            dots.setAttribute('tabindex', '0');
+            dots.setAttribute('aria-label', 'Collapse or expand this code block');
+            const toggle = () => block.classList.toggle('collapsed');
+            dots.addEventListener('click', toggle);
+            dots.addEventListener('keydown', e => {
+                if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); }
+            });
+        });
+
+        /* =========================================
+           3. SIDEBAR SCROLLSPY
            ========================================= */
         const navLinks = document.querySelectorAll('.sidebar-menu .nav-link');
         let isManualScrolling = false;
@@ -938,7 +1032,7 @@
         });
 
         /* =========================================
-           3. INSPECTION BLOCKER (DevTools Protection)
+           4. INSPECTION BLOCKER (DevTools Protection)
            ========================================= */
         function checkDevTools() {
             const threshold = 160;
