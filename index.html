@@ -1189,6 +1189,66 @@
         const FAKE_EMAIL_DOMAIN = 'users.codego.app';
         const USERNAME_PATTERN = /^[a-zA-Z0-9_]{3,20}$/;
 
+        /* =========================================
+           PROFANITY FILTER
+           Blocks slurs and swear words in usernames at signup.
+           This is a client-side, substring-based filter — good
+           enough to stop the casual/honest case with a clean
+           inline error, but anyone can bypass client-side JS, so
+           it is NOT real security. For actual enforcement, add a
+           matching check on the "profiles" table itself (a
+           CHECK constraint or a BEFORE INSERT trigger in Postgres)
+           so a direct API call can't slip a bad username through.
+           Ask if you'd like that SQL added too.
+
+           To extend the list: add more lowercase words to
+           BANNED_WORDS. If a legitimate word starts getting
+           blocked because it contains a banned word as a substring
+           (e.g. "classroom" contains "ass") — known as the
+           "Scunthorpe problem" — add that word to
+           PROFANITY_ALLOWLIST instead of removing the banned word.
+           ========================================= */
+        const BANNED_WORDS = [
+            // common profanity
+            'fuck', 'shit', 'bitch', 'bastard', 'cunt', 'dick', 'piss',
+            'whore', 'slut', 'douche', 'twat', 'wank', 'jackass', 'asshole',
+            // slurs (racial / ethnic / homophobic / ableist / etc.)
+            'nigger', 'nigga', 'fag', 'faggot', 'dyke', 'chink', 'gook',
+            'spic', 'wetback', 'kike', 'tranny', 'retard', 'coon', 'beaner',
+            'paki', 'raghead', 'towelhead',
+        ];
+
+        // Common legitimate words that would otherwise false-positive
+        // because they *contain* a banned word — sorted longest-first
+        // so e.g. "classroom" is stripped whole before "class" or "ass"
+        // ever gets a chance to match.
+        const PROFANITY_ALLOWLIST = [
+            'assassinate', 'assistant', 'associate', 'classroom', 'password',
+            'assassin', 'scunthorpe', 'assist', 'assess', 'compass', 'cockpit',
+            'class', 'classic', 'grass', 'glass', 'brass', 'bass', 'pass',
+        ].sort((a, b) => b.length - a.length);
+
+        function normalizeForProfanityCheck(str) {
+            return str
+                .toLowerCase()
+                .replace(/0/g, 'o')
+                .replace(/[1!|]/g, 'i')
+                .replace(/3/g, 'e')
+                .replace(/[4@]/g, 'a')
+                .replace(/[5$]/g, 's')
+                .replace(/7/g, 't')
+                .replace(/[^a-z]/g, ''); // drop underscores/digits/separators
+        }
+
+        function containsProfanity(rawUsername) {
+            let normalized = normalizeForProfanityCheck(rawUsername);
+            PROFANITY_ALLOWLIST.forEach(safe => {
+                normalized = normalized.split(normalizeForProfanityCheck(safe)).join('');
+            });
+            return BANNED_WORDS.some(word => normalized.includes(word));
+        }
+
+
         function usernameToEmail(username) {
             return `${username.trim().toLowerCase()}@${FAKE_EMAIL_DOMAIN}`;
         }
@@ -1477,6 +1537,10 @@
                 showNotice('Username must be 3-20 characters: letters, numbers, and underscores only.', true);
                 return;
             }
+            if (authMode === 'signup' && containsProfanity(rawUsername)) {
+                showNotice('That username isn\'t allowed. Please choose something else.', true);
+                return;
+            }
 
             const usernameLower = rawUsername.toLowerCase();
             const email = usernameToEmail(usernameLower);
@@ -1565,6 +1629,17 @@
                             'Could not save your username. Run supabase-setup.sql in the Supabase SQL Editor, then try again.',
                             true
                         );
+                        authSubmitBtn.disabled = false;
+                        authSubmitBtn.innerText = 'Create Account';
+                        return;
+                    }
+
+                    if (msg.includes('not allowed')) {
+                        // Caught by the profanity_filter trigger in supabase-setup.sql —
+                        // the auth user was already created above, so sign back out
+                        // rather than leaving them "logged in" with a rejected username.
+                        await supabaseClient.auth.signOut();
+                        showNotice('That username isn\'t allowed. Please choose something else.', true);
                         authSubmitBtn.disabled = false;
                         authSubmitBtn.innerText = 'Create Account';
                         return;
