@@ -545,8 +545,6 @@
     const obs=new IntersectionObserver(entries=>{entries.forEach(entry=>{if(entry.isIntersecting){entry.target.classList.add('in');obs.unobserve(entry.target);}});},{threshold:0.07,rootMargin:'0px 0px -30px 0px'});
     document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
     setTimeout(()=>{const a=document.querySelector('.title-accent');if(a)a.classList.add('in');},350);
-    function checkDevTools(){const t=160;if(window.outerWidth-window.innerWidth>t||window.outerHeight-window.innerHeight>t){if(window.location.pathname.indexOf('../devtools.html')===-1)window.location.href='../devtools.html';}}
-    setInterval(checkDevTools,500);
     document.addEventListener('contextmenu',e=>e.preventDefault());
     document.addEventListener('keydown',e=>{if(e.key==='F12'||(e.ctrlKey&&e.shiftKey&&(e.key==='I'||e.key==='J'||e.key==='C'))||(e.ctrlKey&&e.key==='U')){e.preventDefault();return false;}});
 </script>

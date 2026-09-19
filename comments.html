@@ -798,13 +798,6 @@ const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 /* =========================================
    DEVTOOLS BLOCKER
    ========================================= */
-function checkDevTools() {
-    const threshold = 160;
-    if (window.outerWidth - window.innerWidth > threshold || window.outerHeight - window.innerHeight > threshold) {
-        if (!window.location.pathname.includes('devtools.html')) window.location.href = 'devtools.html';
-    }
-}
-setInterval(checkDevTools, 500);
 document.addEventListener('contextmenu', e => e.preventDefault());
 document.addEventListener('keydown', e => {
     if (e.key === 'F12' ||
